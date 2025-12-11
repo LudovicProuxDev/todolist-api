@@ -17,7 +17,7 @@ class CategoryTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        // Create 10 categories using our factory
+        // Create 100 categories using our factory
         CategoryFactory::createMany(100);
 
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
