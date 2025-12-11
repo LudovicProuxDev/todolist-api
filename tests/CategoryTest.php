@@ -103,4 +103,48 @@ class CategoryTest extends ApiTestCase
             'description' => 'The type of the "label" attribute must be "string", "integer" given.',
         ]);
     }
+
+    public function testUpdateCategory(): void
+    {
+        // Only create the category we need with a given label
+        CategoryFactory::createOne(['label' => 'Cooking']);
+
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $iri = $this->findIriBy(Category::class, ['label' => 'Cooking']);
+
+        // Use the PATCH method here to do a partial update
+        $client->request('PATCH', $iri, [
+            'json' => [
+                'color' => '#ff2525',
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'label' => 'Cooking',
+            'color' => '#ff2525',
+        ]);
+    }
+
+    public function testDeleteCategory(): void
+    {
+        // Only create the category we need with a given label
+        CategoryFactory::createOne(['label' => 'Shopping']);
+
+        $client = static::createClient();
+        $iri = $this->findIriBy(Category::class, ['label' => 'Shopping']);
+
+        $client->request('DELETE', $iri);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(Category::class)->findOneBy(['label' => 'Shopping'])
+        );
+    }
 }
