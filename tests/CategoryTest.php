@@ -48,4 +48,59 @@ class CategoryTest extends ApiTestCase
         // This generated JSON Schema is also used in the OpenAPI spec!
         $this->assertMatchesResourceCollectionJsonSchema(Category::class);
     }
+
+    public function testCreateCategory(): void
+    {
+        self::$alwaysBootKernel = false;
+
+        $response = static::createClient()->request('POST', '/api/categories',
+            [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'json' => [
+                    'label' => 'Housework',
+                    'color' => '#eeeeee',
+                ],
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/api/contexts/Category',
+            '@type' => 'Category',
+            'label' => 'Housework',
+            'color' => '#eeeeee',
+        ]);
+        $this->assertMatchesRegularExpression('~^/api/categories/\d+$~', $response->toArray()['@id']);
+        $this->assertMatchesResourceItemJsonSchema(Category::class);
+    }
+
+    public function testCreateInvalidCategory(): void
+    {
+        self::$alwaysBootKernel = false;
+
+        $response = static::createClient()->request('POST', '/api/categories',
+            [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'json' => [
+                    'label' => 10,
+                    'color' => 10.1,
+                ],
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+
+        $this->assertJsonContains([
+            '@context' => '/api/contexts/Error',
+            '@id' => '/api/errors/400',
+            '@type' => 'Error',
+            'title' => 'An error occurred',
+            'detail' => 'The type of the "label" attribute must be "string", "integer" given.',
+            'status' => 400,
+            'type' => '/errors/400',
+            'description' => 'The type of the "label" attribute must be "string", "integer" given.',
+        ]);
+    }
 }
