@@ -48,4 +48,61 @@ class TaskTest extends ApiTestCase
         // This generated JSON Schema is also used in the OpenAPI spec!
         $this->assertMatchesResourceCollectionJsonSchema(Task::class);
     }
+
+    public function testCreateTask(): void
+    {
+        self::$alwaysBootKernel = false;
+
+        $response = static::createClient()->request('POST', '/api/tasks',
+            [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'json' => [
+                    'description' => 'Do the bathroom',
+                    'createdAt' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                    'category' => '/api/categories/1',
+                ],
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/api/contexts/Task',
+            '@type' => 'Task',
+            'description' => 'Do the bathroom',
+            'category' => '/api/categories/1',
+        ]);
+        $this->assertMatchesRegularExpression('~^/api/tasks/\d+$~', $response->toArray()['@id']);
+        $this->assertMatchesResourceItemJsonSchema(Task::class);
+    }
+
+    public function testCreateInvalidTask(): void
+    {
+        self::$alwaysBootKernel = false;
+
+        $response = static::createClient()->request('POST', '/api/tasks',
+            [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'json' => [
+                    'description' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                    'createdAt' => 'invalid task',
+                    'category' => '/api/categories/200',
+                ],
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+
+        $this->assertJsonContains([
+            '@context' => '/api/contexts/Error',
+            '@id' => '/api/errors/400',
+            '@type' => 'Error',
+            'title' => 'An error occurred',
+            'detail' => 'The type of the "label" attribute must be "string", "integer" given.',
+            'status' => 400,
+            'type' => '/errors/400',
+            'description' => 'The type of the "label" attribute must be "string", "integer" given.',
+        ]);
+    }
 }
