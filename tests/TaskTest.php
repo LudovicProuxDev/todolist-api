@@ -105,4 +105,49 @@ class TaskTest extends ApiTestCase
             'description' => 'Failed to parse time string (invalid task) at position 0 (i): The timezone could not be found in the database',
         ]);
     }
+
+    public function testUpdateTask(): void
+    {
+        // Only create the task we need with a given label
+        TaskFactory::createOne(['description' => 'Make an apple pie']);
+
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $iri = $this->findIriBy(Task::class, ['description' => 'Make an apple pie']);
+
+        // Use the PATCH method here to do a partial update
+        $client->request('PATCH', $iri, [
+            'json' => [
+                'createdAt' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                'category' => '/api/categories/20',
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'description' => 'Make an apple pie',
+            'category' => '/api/categories/20',
+        ]);
+    }
+
+    public function testDeleteTask(): void
+    {
+        // Only create the task we need with a given label
+        TaskFactory::createOne(['description' => 'Buy apples']);
+
+        $client = static::createClient();
+        $iri = $this->findIriBy(Task::class, ['description' => 'Buy apples']);
+
+        $client->request('DELETE', $iri);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(Task::class)->findOneBy(['description' => 'Buy apples'])
+        );
+    }
 }
