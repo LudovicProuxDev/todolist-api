@@ -99,10 +99,10 @@ class TaskTest extends ApiTestCase
             '@id' => '/api/errors/400',
             '@type' => 'Error',
             'title' => 'An error occurred',
-            'detail' => 'The type of the "label" attribute must be "string", "integer" given.',
+            'detail' => 'Failed to parse time string (invalid task) at position 0 (i): The timezone could not be found in the database',
             'status' => 400,
             'type' => '/errors/400',
-            'description' => 'The type of the "label" attribute must be "string", "integer" given.',
+            'description' => 'Failed to parse time string (invalid task) at position 0 (i): The timezone could not be found in the database',
         ]);
     }
 }
