@@ -1,0 +1,40 @@
+services:
+  app:
+    image: todolist-api
+    command: >
+      sh -c "composer install && 
+             php bin/console doctrine:database:create --if-not-exists && 
+             php bin/console doctrine:migrations:migrate --no-interaction && 
+             php -S 0.0.0.0:8000 -t public"
+    ports:
+      - "8000:8000"
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      DATABASE_URL: "postgresql://root:secret@db:5432/todolist?serverVersion=18&charset=utf8"
+    depends_on:
+      - db
+    networks:
+      - todolist-app
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: todolist
+    volumes:
+      - todolist-db-data:/var/lib/postgresql/data
+    networks:
+      - todolist-app
+    ports:
+      - "5432:5432"
+
+networks:
+  todolist-app:
+    driver: bridge
+
+volumes:
+  todolist-db-data:
