@@ -1,6 +1,9 @@
 services:
-  app:
-    image: todolist-api-backend
+  # Backend
+  backend:
+    #image: todolist-api-backend
+    build: ./backend
+    container_name: todolist-api-backend
     command: >
       sh -c "composer install && 
              php bin/console doctrine:database:create --if-not-exists && 
@@ -10,7 +13,7 @@ services:
       - "8000:8000"
     working_dir: /var/www/html
     volumes:
-      - ./:/var/www/html
+      - ./backend:/var/www/html
     environment:
       DATABASE_URL: "postgresql://root:secret@db:5432/todolist?serverVersion=18&charset=utf8"
     depends_on:
@@ -18,8 +21,10 @@ services:
     networks:
       - todolist-app
 
+  # Database
   db:
     image: postgres:18-alpine
+    container_name: todolist_db
     restart: always
     environment:
       POSTGRES_USER: root
@@ -31,6 +36,22 @@ services:
       - todolist-app
     ports:
       - "5432:5432"
+
+  # Frontend
+  frontend:
+    #image: todolist-api-frontend
+    build: ./frontend
+    container_name: todolist-api-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:8000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - todolist-app
 
 networks:
   todolist-app:
