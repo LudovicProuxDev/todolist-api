@@ -1,6 +1,6 @@
 services:
   app:
-    image: todolist-api
+    image: todolist-api-backend
     command: >
       sh -c "composer install && 
              php bin/console doctrine:database:create --if-not-exists && 
