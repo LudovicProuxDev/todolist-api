@@ -44,8 +44,6 @@ services:
     container_name: todolist-api-frontend
     ports:
       - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://backend:8000
     volumes:
       - ./frontend:/app
     depends_on:
