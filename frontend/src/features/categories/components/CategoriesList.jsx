@@ -1,32 +1,17 @@
-import { useState, useEffect } from 'react';
-import { fetchData } from '../../../api/api';
+import { useCategories } from '../hooks/useCategories';
 
 const CategoriesList = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { categories, isLoading, error } = useCategories();
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const result = await fetchData('/categories');
-        setData(result.member);
-      } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) return <p>Loading...</p>;
 
-    loadData();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
+  if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
 
   return (
     <div>
       <h1>Categories</h1>
       <ul>
-        {data.map((item) => (
+        {categories.map((item) => (
           <li key={item.id} style={{ backgroundColor: item.color }}>{item.label}</li>
         ))}
       </ul>
