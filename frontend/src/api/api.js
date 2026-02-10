@@ -36,7 +36,7 @@ export const postData = async (endpoint, data) => {
 // Exemple de fonction pour mettre à jour des données
 export const updateData = async (endpoint, data) => {
   try {
-    const response = await api.put(endpoint, data);
+    const response = await api.patch(endpoint, data);
     return response.data;
   } catch (error) {
     console.error('Erreur lors de la mise à jour des données:', error);
