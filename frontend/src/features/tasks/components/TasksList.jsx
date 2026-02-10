@@ -1,32 +1,17 @@
-import { useState, useEffect } from 'react';
-import { fetchData } from '../../../api/api';
+import { useTasks } from "../hooks/useTasks";
 
 const TasksList = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const result = await fetchData('/tasks');
-        setData(result.member);
-      } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
+    const { tasks, isLoading, error } = useTasks();
+  
+    if (isLoading) return <p>Loading...</p>;
+  
+    if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
 
   return (
     <div>
       <h1>Tasks</h1>
       <ul>
-        {data.map((item) => (
+        {tasks.map((item) => (
           <li key={item.id}>{item.description} - <strong>Date:</strong> {item.createdAt}</li>
         ))}
       </ul>
