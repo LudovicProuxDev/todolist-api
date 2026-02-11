@@ -2,55 +2,56 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api';
 
-// Instance Axios configurée
+// Instance Axios with API
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    // Ajoute d'autres headers si nécessaire (ex: Authorization)
+    'Content-Type': 'application/ld+json',
+    'Accept': 'application/ld+json',
+    // Add headers (ex: Authorization)
   },
 });
 
-// Exemple de fonction pour récupérer des données
+// Function to get data
 export const fetchData = async (endpoint) => {
   try {
     const response = await api.get(endpoint);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de la récupération des données:', error);
+    console.error('Error for getting data:', error);
     throw error;
   }
 };
 
-// Exemple de fonction pour envoyer des données
+// Function to send data
 export const postData = async (endpoint, data) => {
   try {
     const response = await api.post(endpoint, data);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de l\'envoi des données:', error);
+    console.error('Error for sending data:', error);
     throw error;
   }
 };
 
-// Exemple de fonction pour mettre à jour des données
+// Function to update data
 export const updateData = async (endpoint, data) => {
   try {
     const response = await api.patch(endpoint, data);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de la mise à jour des données:', error);
+    console.error('Error for updating data:', error);
     throw error;
   }
 };
 
-// Exemple de fonction pour supprimer des données
+// Function to delete data
 export const deleteData = async (endpoint) => {
   try {
     const response = await api.delete(endpoint);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de la suppression des données:', error);
+    console.error('Error for deleting data:', error);
     throw error;
   }
 };
