@@ -37,7 +37,11 @@ export const postData = async (endpoint, data) => {
 // Function to update data
 export const updateData = async (endpoint, data) => {
   try {
-    const response = await api.patch(endpoint, data);
+    const response = await api.patch(endpoint, data, {
+      headers: {
+      'Content-Type': 'application/merge-patch+json',
+    },
+    });
     return response.data;
   } catch (error) {
     console.error('Error for updating data:', error);
