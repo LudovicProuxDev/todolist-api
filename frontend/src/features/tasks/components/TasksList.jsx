@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router';
 import { useTasks } from "../hooks/useTasks";
 
 const TasksList = () => {
@@ -12,7 +13,7 @@ const TasksList = () => {
       <h1>Tasks</h1>
       <ul>
         {tasks.map((item) => (
-          <li key={item.id}>{item.description} - <strong>Date:</strong> {item.createdAt}</li>
+          <li key={item.id}><NavLink to={`/tasks/${item.id}`}>#{item.id}</NavLink> {item.description} - <strong>Date:</strong> {item.createdAt}</li>
         ))}
       </ul>
     </div>
