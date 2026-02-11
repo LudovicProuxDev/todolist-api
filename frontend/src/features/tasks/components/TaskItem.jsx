@@ -9,8 +9,6 @@ const TaskItem = () => {
 
   if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
 
-  console.log(task);
-
   return (
     <div>
       <h1>Task #{id}</h1>

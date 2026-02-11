@@ -9,8 +9,6 @@ const CategoryItem = () => {
 
   if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
 
-  console.log(category);
-
   return (
     <div>
       <h1>Category #{id}</h1>
