@@ -6,7 +6,7 @@ const CategoriesList = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  if (error) return <div>Erreur : {error.message || 'Error occured'}</div>;
+  if (error) return <div>Error : {error.message || 'Error occured'}</div>;
 
   return (
     <div>

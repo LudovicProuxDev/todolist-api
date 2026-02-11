@@ -6,7 +6,7 @@ const TasksList = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  if (error) return <div>Erreur : {error.message || 'Error occured'}</div>;
+  if (error) return <div>Error : {error.message || 'Error occured'}</div>;
 
   return (
     <div>
@@ -15,8 +15,8 @@ const TasksList = () => {
       <ul>
         {tasks.map((item) => (
           <li key={item.id}>
-            <NavLink to={`/tasks/${item.id}`}>#{item.id}</NavLink> / {item.description} - <strong>Date:</strong> {item.createdAt
-          }</li>
+            <NavLink to={`/tasks/${item.id}`}>#{item.id}</NavLink> / {item.description} - <strong>Date:</strong> {item.createdAt}
+          </li>
         ))}
       </ul>
     </div>

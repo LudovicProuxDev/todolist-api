@@ -14,7 +14,7 @@ export const useCategory = (id) => {
         const response = await getCategory(id);
         setCategory(response);
       } catch (err) {
-        console.error('Erreur API:', err);
+        console.error('Error API:', err);
         setError(err);
       } finally {
         setIsLoading(false);

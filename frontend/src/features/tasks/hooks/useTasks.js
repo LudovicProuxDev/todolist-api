@@ -14,7 +14,7 @@ export const useTasks = () => {
         const response = await getTasks();
         setTasks(response.member);
       } catch (err) {
-        console.error('Erreur API:', err);
+        console.error('Error API:', err);
         setError(err);
       } finally {
         setIsLoading(false);

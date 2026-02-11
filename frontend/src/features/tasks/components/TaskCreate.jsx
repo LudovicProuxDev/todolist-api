@@ -35,7 +35,7 @@ const TaskCreate = () => {
 
   if (isLoadingCategory) return <p>Loading...</p>;
 
-  if (errorCategory) return <div>Erreur : {errorCategory.message || 'Error occured'}</div>;
+  if (errorCategory) return <div>Error : {errorCategory.message || 'Error occured'}</div>;
 
   return (
     <div>
