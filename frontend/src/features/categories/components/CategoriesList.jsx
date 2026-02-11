@@ -6,11 +6,12 @@ const CategoriesList = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
+  if (error) return <div>Erreur : {error.message || 'Error occured'}</div>;
 
   return (
     <div>
       <h1>Categories</h1>
+      <div><NavLink to={"/categories/create"}>Create Category</NavLink></div>
       <ul>
         {categories.map((item) => (
           <li key={item.id} style={{ backgroundColor: item.color }}>
