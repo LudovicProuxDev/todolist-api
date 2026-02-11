@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { NavLink, useParams } from 'react-router';
 import { useTask } from '../hooks/useTask';
 
 const TaskItem = () => {
@@ -7,7 +7,7 @@ const TaskItem = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  if (error) return <div>Erreur : {error.message || 'Une erreur est survenue'}</div>;
+  if (error) return <div>Error : {error.message || 'Error occured'}</div>;
 
   return (
     <div>
@@ -15,6 +15,7 @@ const TaskItem = () => {
       <p>Description: {task.description}</p>
       <p>Date: {task.createdAt}</p>
       <p>Category: {task.category}</p>
+      <div><NavLink to={`/tasks/${id}/update`}>Update</NavLink></div>
     </div>
   );
 };
