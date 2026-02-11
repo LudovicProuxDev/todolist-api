@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router';
 import { useCategories } from '../hooks/useCategories';
 
 const CategoriesList = () => {
@@ -12,7 +13,9 @@ const CategoriesList = () => {
       <h1>Categories</h1>
       <ul>
         {categories.map((item) => (
-          <li key={item.id} style={{ backgroundColor: item.color }}>{item.label}</li>
+          <li key={item.id} style={{ backgroundColor: item.color }}>
+            <NavLink to={`/categories/${item.id}`}>{item.label}</NavLink>
+          </li>
         ))}
       </ul>
     </div>
