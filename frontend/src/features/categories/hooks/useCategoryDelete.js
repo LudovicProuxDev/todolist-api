@@ -14,7 +14,9 @@ export const useCategoryDelete = () => {
         return true;
     } catch (err) {
         console.error('Error API:', err);
-        setError(err);
+        const errorDetail = err.response?.data?.detail || 'Error occured for deleting';
+        setError(errorDetail);
+        throw err;
     } finally {
         setIsLoading(false);
     }
