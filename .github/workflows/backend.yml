@@ -1,0 +1,79 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Backend Symfony
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: symfony_test
+          POSTGRES_USER: symfony
+          POSTGRES_PASSWORD: symfony
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U symfony"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql
+      - name: Cache Composer packages
+        id: composer-cache-test
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Copy .env.test.local
+        run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+      - name: Run Doctrine migrations
+        env:
+          DATABASE_URL: postgres://symfony:symfony@localhost:5432/symfony_test?serverVersion=18&charset=utf8
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+      - name: Execute tests via PHPUnit
+        env:
+          DATABASE_URL: postgres://symfony:symfony@localhost:5432/symfony_test?serverVersion=18&charset=utf8
+        run: vendor/bin/phpunit
