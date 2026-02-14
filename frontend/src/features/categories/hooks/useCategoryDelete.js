@@ -10,7 +10,7 @@ export const useCategoryDelete = () => {
     setError(null);
 
     try {
-        const response = await deleteCategory(id);
+        await deleteCategory(id);
         return true;
     } catch (err) {
         console.error('Error API:', err);

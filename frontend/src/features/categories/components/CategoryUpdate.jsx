@@ -9,18 +9,10 @@ const CategoryUpdate = () => {
   const { category, isLoading: isLoadingGet, error: errorGet } = useCategory(id);
   const { categoryUpdate, isLoading, error } = useCategoryUpdate();
 
-  const [formData, setFormData] = useState({
-    label: '',
-    color: ''
-  });
+  const [formData, setFormData] = useState(category ?? {});
 
   useEffect(() => {
-    if (category) {
-      setFormData({
-        label: category?.label || '',
-        color: category?.color || '#000000'
-      });
-    }
+    setFormData(category);
   }, [category]);
 
   const handleChange = (e) => {

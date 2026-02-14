@@ -22,7 +22,7 @@ export const useCategory = (id) => {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   return { category, isLoading, error };
 };
