@@ -2,11 +2,9 @@ name: Frontend Vite - React
 
 on:
   push:
-    branches: [ "master" ]
-    paths:
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
-    paths:
+    branches: ["master"]
 
 #on:
 #  workflow_run:
@@ -32,7 +30,7 @@ jobs:
         id: node-cache
         uses: actions/cache@v3
         with:
-          path: ./frontendnode_modules
+          path: ./frontend/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
@@ -42,6 +40,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -75,6 +74,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
