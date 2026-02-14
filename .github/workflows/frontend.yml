@@ -1,18 +1,12 @@
 name: Frontend Vite - React
 
 on:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
-
-#on:
-#  workflow_run:
-#    workflows: ["Backend Symfony"]
-#    types:
-#      - completed
-#    branches:
-#      - master
+  workflow_run:
+    workflows: ["Backend Symfony"]
+    types:
+      - completed
+    branches:
+      - master
 
 permissions:
   contents: read
