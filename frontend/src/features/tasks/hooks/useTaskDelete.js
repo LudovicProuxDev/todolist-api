@@ -10,7 +10,7 @@ export const useTaskDelete = () => {
     setError(null);
 
     try {
-        const response = await deleteTask(id);
+        await deleteTask(id);
         return true;
     } catch (err) {
         console.error('Error API:', err);

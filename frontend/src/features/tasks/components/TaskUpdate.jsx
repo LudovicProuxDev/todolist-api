@@ -11,18 +11,10 @@ const TaskUpdate = () => {
   const { taskUpdate, isLoading, error } = useTaskUpdate();
   const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
 
-  const [formData, setFormData] = useState({
-    description: '',
-    category: ''
-  });
+  const [formData, setFormData] = useState(task ?? {});
 
   useEffect(() => {
-    if (task) {
-      setFormData({
-        description: task?.description || '',
-        category: task?.category || ''
-      });
-    }
+    setFormData(task);
   }, [task]);
 
   const handleChange = (e) => {

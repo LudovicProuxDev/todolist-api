@@ -22,7 +22,7 @@ export const useTask = (id) => {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   return { task, isLoading, error };
 };
