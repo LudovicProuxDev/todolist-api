@@ -32,10 +32,10 @@ jobs:
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
-        working-directory: backend
+        working-directory: ./backend
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-        working-directory: backend
+        working-directory: ./backend
 
   test:
     needs: build
@@ -69,18 +69,18 @@ jobs:
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
-        working-directory: backend
+        working-directory: ./backend
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-        working-directory: backend
+        working-directory: ./backend
       - name: Run Doctrine migrations
         env:
           DATABASE_URL: postgres://symfony:symfony@localhost:5432/symfony_test?serverVersion=18&charset=utf8
         run: php bin/console doctrine:migrations:migrate --no-interaction
-        working-directory: backend
+        working-directory: ./backend
       - name: Execute tests via PHPUnit
         env:
           DATABASE_URL: postgres://symfony:symfony@localhost:5432/symfony_test?serverVersion=18&charset=utf8
         run: vendor/bin/phpunit
-        working-directory: backend
+        working-directory: ./backend
 
