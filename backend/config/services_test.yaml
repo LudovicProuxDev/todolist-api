@@ -1,0 +1,4 @@
+services:
+    test.user_password_hasher:
+        alias: security.user_password_hasher
+        public: true
