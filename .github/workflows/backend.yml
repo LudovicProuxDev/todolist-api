@@ -82,7 +82,7 @@ jobs:
       - name: Create JWT Keys
         run: |
           mkdir -p config/jwt
-          echo "${{ secrets.JWT_PRIVATE_KEY }}" | base64 -d > config/jwt/private.pem
+          echo "${{ secrets.JWT_SECRET_KEY }}" | base64 -d > config/jwt/private.pem
           echo "${{ secrets.JWT_PUBLIC_KEY }}" | base64 -d > config/jwt/public.pem
           chmod 600 config/jwt/private.pem
       - name: Execute tests via PHPUnit
