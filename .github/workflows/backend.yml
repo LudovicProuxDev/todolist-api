@@ -39,13 +39,17 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+    env:
+      DATABASE_URL: postgres://john:doe@localhost:5432/todolist?serverVersion=18&charset=utf8
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
     services:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_DB: symfony_test
-          POSTGRES_USER: symfony
-          POSTGRES_PASSWORD: symfony
+          POSTGRES_DB: todolist
+          POSTGRES_USER: john
+          POSTGRES_PASSWORD: doe
         ports:
           - 5432:5432
         options: >-
@@ -74,8 +78,6 @@ jobs:
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
-        env:
-          DATABASE_URL: postgres://symfony:symfony@localhost:5432/todolist?serverVersion=18&charset=utf8
       - name: Create JWT Keys
         run: |
           mkdir -p config/jwt
