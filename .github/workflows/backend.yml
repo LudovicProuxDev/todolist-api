@@ -85,5 +85,6 @@ jobs:
           echo "${{ secrets.JWT_SECRET_KEY }}" | base64 -d > config/jwt/private.pem
           echo "${{ secrets.JWT_PUBLIC_KEY }}" | base64 -d > config/jwt/public.pem
           chmod 600 config/jwt/private.pem
+          chmod 644 config/jwt/public.pem
       - name: Execute tests via PHPUnit
         run: vendor/bin/phpunit
