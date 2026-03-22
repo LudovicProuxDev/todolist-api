@@ -43,6 +43,7 @@ jobs:
       DATABASE_URL: postgres://john:doe@localhost:5432/todolist?serverVersion=18&charset=utf8
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+      JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
     services:
       postgres:
         image: postgres:18
