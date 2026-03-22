@@ -41,8 +41,8 @@ jobs:
         working-directory: ./backend
     env:
       DATABASE_URL: postgres://john:doe@localhost:5432/todolist?serverVersion=18&charset=utf8
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+      JWT_SECRET_KEY: "%env(resolve:JWT_SECRET_KEY)%"
+      JWT_PUBLIC_KEY: "%env(resolve:JWT_PUBLIC_KEY)%"
       JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
     services:
       postgres:
@@ -82,8 +82,8 @@ jobs:
       - name: Create JWT Keys
         run: |
           mkdir -p config/jwt
-          echo "${{ secrets.JWT_SECRET_KEY }}" | base64 -d > config/jwt/private.pem
-          echo "${{ secrets.JWT_PUBLIC_KEY }}" | base64 -d > config/jwt/public.pem
+          echo "${{ secrets.JWT_SECRET_KEY }}" > config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY }}" > config/jwt/public.pem
           chmod 600 config/jwt/private.pem
           chmod 644 config/jwt/public.pem
       - name: Execute tests via PHPUnit
