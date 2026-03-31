@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from 'react-router';
+import Logout from './Logout';
 
 function Layout() {
   return (
@@ -9,6 +10,9 @@ function Layout() {
                 <li><NavLink to="/">Home</NavLink></li>
                 <li><NavLink to="/tasks">Tasks</NavLink></li>
                 <li><NavLink to="/categories">Categories</NavLink></li>
+                <li><NavLink to="/users">Users</NavLink></li>
+                <li><NavLink to="/login">Log in</NavLink></li>
+                <li><Logout /></li>
             </ul>
         </nav>
       </header>

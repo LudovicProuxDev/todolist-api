@@ -12,6 +12,17 @@ const api = axios.create({
   },
 });
 
+// Intercept each request
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 // Function to get data
 export const fetchData = async (endpoint) => {
   try {
