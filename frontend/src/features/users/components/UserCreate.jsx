@@ -8,7 +8,7 @@ const UserCreate = () => {
 
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
+    plainPassword: '',
     lastname: '',
     firstname: '',
     roles: []
@@ -64,8 +64,8 @@ const UserCreate = () => {
           <label>Password:</label>
           <input
             type="text"
-            name="password"
-            value={formData.password}
+            name="plainPassword"
+            value={formData.plainPassword}
             onChange={handleChange}
             required
           />
