@@ -11,5 +11,5 @@ controllers:
     resource: routing.controllers
 
 auth:
-    path: /auth
+    path: /api/auth
     methods: ["POST"]
