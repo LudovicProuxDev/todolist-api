@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\UserRepository;
+use App\State\MeProvider;
 use App\State\UserPasswordHasher;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -27,6 +28,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(processor: UserPasswordHasher::class, validationContext: ['groups' => ['Default', 'user:create']]),
         new Patch(processor: UserPasswordHasher::class),
         new Delete(),
+        new Get(
+            uriTemplate: '/me',
+            provider: MeProvider::class,
+            security: "is_granted('ROLE_USER')",
+        )
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:create', 'user:update']],

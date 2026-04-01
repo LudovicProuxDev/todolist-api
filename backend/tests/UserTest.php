@@ -166,4 +166,32 @@ class UserTest extends ApiTestCase
             static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['username' => 'jane.doe'])
         );
     }
+
+    public function testMe(): void
+    {
+        self::$alwaysBootKernel = false;
+
+        $response = static::createClient()->request(
+            'GET',
+            '/api/me',
+            [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'auth_bearer' => self::$json['token'],
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/api/contexts/User',
+            '@type' => 'User',
+            'username' => 'joe.doe',
+            'roles' => ['ROLE_USER'],
+            'lastname' => 'DOE',
+            'firstname' => 'Joe',
+            'email' => 'joe.doe@gmail.com',
+        ]);
+        $this->assertMatchesRegularExpression('~^/api/me$~', $response->toArray()['@id']);
+        $this->assertMatchesResourceItemJsonSchema(User::class);
+    }
 }
