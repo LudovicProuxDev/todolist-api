@@ -12,6 +12,7 @@ function Layout() {
                 <li><NavLink to="/categories">Categories</NavLink></li>
                 <li><NavLink to="/users">Users</NavLink></li>
                 <li><NavLink to="/login">Log in</NavLink></li>
+                <li><NavLink to="/profile">My profile</NavLink></li>
                 <li><Logout /></li>
             </ul>
         </nav>

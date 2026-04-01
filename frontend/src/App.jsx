@@ -7,6 +7,7 @@ import UserRoutes from './features/users/routes/UserRoutes';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import Logout from './components/Logout';
+import ProfileRoutes from './features/profile/routes/ProfileRoutes';
 
 export function App() {
   return (
@@ -24,6 +25,11 @@ export function App() {
         <Route path="users/*" element={
           <ProtectedRoute>
               <UserRoutes />
+          </ProtectedRoute>
+        }/>
+        <Route path="profile" element={
+          <ProtectedRoute>
+              <ProfileRoutes />
           </ProtectedRoute>
         }/>
       </Route>

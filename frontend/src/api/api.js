@@ -8,8 +8,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/ld+json',
     'Accept': 'application/ld+json',
-    // Add headers (ex: Authorization)
   },
+  withCredentials: true
 });
 
 // Intercept each request
