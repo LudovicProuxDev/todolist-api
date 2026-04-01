@@ -69,6 +69,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private ?string $firstname = null;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:create', 'user:update'])]
+    private ?string $email = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -176,6 +180,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFirstname(string $firstname): static
     {
         $this->firstname = $firstname;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

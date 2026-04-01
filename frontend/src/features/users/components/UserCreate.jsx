@@ -89,6 +89,16 @@ const UserCreate = () => {
           />
         </div>
         <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
           <label>Roles:</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
             {['ROLE_ADMIN'].map(role => (

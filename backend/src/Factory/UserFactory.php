@@ -34,9 +34,10 @@ final class UserFactory extends PersistentObjectFactory
         return [
             'username' => self::faker()->text(180),
             'roles' => self::faker()->shuffle(['ROLE_USER']),
-            'password' => self::faker()->text(255),
-            'lastname' => self::faker()->text(255),
-            'firstname' => self::faker()->text(255),
+            'password' => self::faker()->password(20),
+            'lastname' => self::faker()->lastName(),
+            'firstname' => self::faker()->firstName(),
+            'email' => self::faker()->email(),
         ];
     }
 

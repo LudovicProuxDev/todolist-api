@@ -54,6 +54,8 @@ const UserUpdate = () => {
       
       {error && <p style={{ color: 'red' }}>{error}</p>}
       
+      <p>Username: {user.username}</p>
+
       <form onSubmit={handleSubmit}>
         <div>
           <label>Lastname:</label>
@@ -71,6 +73,16 @@ const UserUpdate = () => {
             name="firstname"
             value={formData.firstname}
             onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
           />
         </div>
         <div>

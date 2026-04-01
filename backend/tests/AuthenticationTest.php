@@ -23,6 +23,7 @@ class AuthenticationTest extends ApiTestCase
         $user->setFirstname('Joe');
         $user->setRoles(['ROLE_USER']);
         $user->setUsername('joe.doe');
+        $user->setEmail('joe.doe@gmail.com');
         $user->setPassword(
             $container->get('test.user_password_hasher')->hashPassword($user, '$3CR3T')
         );
@@ -32,7 +33,7 @@ class AuthenticationTest extends ApiTestCase
         $manager->flush();
 
         // retrieve a token
-        $response = $client->request('POST', '/auth', [
+        $response = $client->request('POST', '/api/auth', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'username' => 'joe.doe',

@@ -36,6 +36,7 @@ const UserItem = () => {
       <p>Username: {user.username}</p>
       <p>Fistname: {user.firstname}</p>
       <p>Lastname: {user.lastname}</p>
+      <p>Email: {user.email}</p>
       <div>
         <NavLink to={`/users/${id}/update`}>Update</NavLink>
         <button onClick={() => handleDelete()} disabled={isDeleting} >{isDeleting ? 'Deletion...' : 'Delete'}</button>

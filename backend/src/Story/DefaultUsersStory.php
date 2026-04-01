@@ -2,13 +2,13 @@
 
 namespace App\Story;
 
-use App\Factory\TaskFactory;
+use App\Factory\UserFactory;
 use Zenstruck\Foundry\Story;
 
 final class DefaultUsersStory extends Story
 {
     public function build(): void
     {
-        TaskFactory::createMany(100);
+        UserFactory::createMany(100);
     }
 }

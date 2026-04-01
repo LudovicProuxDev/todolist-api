@@ -19,13 +19,13 @@ class UserTest extends ApiTestCase
     {
         parent::setUpBeforeClass();
 
-        $client = static::createClient();
         $container = static::getContainer();
 
         $user = new User();
         $user->setFirstname('Joe');
         $user->setLastname('DOE');
         $user->setUsername('joe.doe');
+        $user->setEmail('joe.doe@gmail.com');
         $user->setRoles(['ROLE_USER']);
         $user->setPassword(
             $container->get('test.user_password_hasher')->hashPassword($user, '$3CR3T')
@@ -36,7 +36,7 @@ class UserTest extends ApiTestCase
         $manager->flush();
 
         // retrieve a token
-        $response = $client->request('POST', '/auth', [
+        $response = static::createClient()->request('POST', '/api/auth', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'username' => 'joe.doe',
@@ -95,9 +95,11 @@ class UserTest extends ApiTestCase
                 'json' => [
                     'username' => 'ludovic',
                     'roles' => ['ROLE_USER', 'ROLE_ADMIN'],
-                    'password' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
+                    //'password' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
+                    'plainPassword' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
                     'lastname' => 'PROUX',
                     'firstname' => 'Ludovic',
+                    'email' => 'ludovic.proux@outlook.fr',
                 ],
                 'auth_bearer' => self::$json['token'],
             ],
@@ -112,6 +114,7 @@ class UserTest extends ApiTestCase
             'roles' => ['ROLE_USER', 'ROLE_ADMIN'],
             'lastname' => 'PROUX',
             'firstname' => 'Ludovic',
+            'email' => 'ludovic.proux@outlook.fr',
         ]);
         $this->assertMatchesRegularExpression('~^/api/users/\d+$~', $response->toArray()['@id']);
         $this->assertMatchesResourceItemJsonSchema(User::class);
