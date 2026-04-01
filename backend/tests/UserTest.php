@@ -96,7 +96,7 @@ class UserTest extends ApiTestCase
                     'username' => 'ludovic',
                     'roles' => ['ROLE_USER', 'ROLE_ADMIN'],
                     //'password' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
-                    'plainPassword' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
+                    'plainPassword' => '$3CR3T',
                     'lastname' => 'PROUX',
                     'firstname' => 'Ludovic',
                     'email' => 'ludovic.proux@outlook.fr',
