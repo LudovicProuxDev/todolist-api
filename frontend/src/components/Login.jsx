@@ -17,11 +17,11 @@ const Login = () => {
         e.preventDefault();
         setError('');
 
-        if (!username) {
+        if (!credentials.username) {
             setError('Field "username" is missing.');
             return;
         }
-        if (!password) {
+        if (!credentials.password) {
             setError('Field "password" is missing..');
             return;
         }
