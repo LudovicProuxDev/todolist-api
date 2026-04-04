@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: '/me',
             provider: MeProvider::class,
-            security: "is_granted('ROLE_USER')",
-        )
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+        ),
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:create', 'user:update']],

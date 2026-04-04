@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class MeProvider implements ProviderInterface
 {
@@ -16,7 +17,7 @@ class MeProvider implements ProviderInterface
         $user = $this->security->getUser();
 
         if (!$user instanceof User) {
-            return null;
+            throw new UnauthorizedHttpException('Bearer', 'User not authenticated');
         }
 
         return $user;
