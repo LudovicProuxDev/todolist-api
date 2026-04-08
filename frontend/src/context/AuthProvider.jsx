@@ -54,10 +54,25 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     }, []);
 
+    /**
+     * Check if user has one or many roles
+     * @param {string|string[]} roles
+     */
+    const hasRole = useCallback((roles) => {
+        if (!user?.roles || !roles) return false;
+
+        if (Array.isArray(roles)) {
+            return roles.some(role => user.roles.includes(role));
+        }
+
+        return user.roles.includes(roles);
+    }, [user]);
+
     const value = {
         user,
         login,
         logout,
+        hasRole,
         isAuthenticated: !!user
     };
 

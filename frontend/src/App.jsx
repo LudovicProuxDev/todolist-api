@@ -8,6 +8,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import ProfileRoutes from './features/profile/routes/ProfileRoutes';
+import { ROLES } from './constants/roles';
+import Unauthorized from './components/Unauthorized';
 
 export function App() {
   return (
@@ -18,21 +20,22 @@ export function App() {
         <Route path="logout" element={<Logout />} />
         <Route path="tasks/*" element={<TaskRoutes />} />
         <Route path="categories/*" element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={[ROLES.ADMIN]}>
               <CategoryRoutes />
           </ProtectedRoute>
         }/>
         <Route path="users/*" element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={[ROLES.ADMIN]}>
               <UserRoutes />
           </ProtectedRoute>
         }/>
-        <Route path="profile" element={
+        <Route path="profile/*" element={
           <ProtectedRoute>
               <ProfileRoutes />
           </ProtectedRoute>
         }/>
       </Route>
+      <Route path="unauthorized" element={<Unauthorized />} />
     </Routes>
   );
 }
