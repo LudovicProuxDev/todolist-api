@@ -1,30 +1,32 @@
-import { useState, useCallback } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { useState, useCallback, useEffect } from 'react';
 import api from '../api/api';
 import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }) => {
-    // Initialize the state for the localStorage
-    const [user, setUser] = useState(() => {
-        // Checking token if exists
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                // Checking expiration token
-                if (decoded.exp * 1000 > Date.now()) {
-                    return decoded;
-                }
-            } catch (err) {
-                console.error("Invalid token:", err);
-            }
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // Checking if the user is connected
+    const checkAuth = useCallback(async () => {
+        try {
+            // Endpoint API with current user
+            // This call will automatically send the httpOnly cookie 
+            const response = await api.get('/me'); 
+            setUser(response.data);
+        } catch (err) {
+            setUser(null);
+        } finally {
+            setLoading(false);
         }
-        return null;
-    });
+    }, []);
+
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
 
     const login = async (username, password) => {
         try {
-            const response = await api.post('/auth',
+            await api.post('/auth',
                 {
                     username: username,
                     password: password
@@ -36,10 +38,9 @@ export const AuthProvider = ({ children }) => {
                     }
                 }
             );
-            const { token } = response.data;
-            localStorage.setItem('token', token);
+            // After login, we get user infos
+            await checkAuth(); 
             
-            setUser(jwtDecode(token));
             return { success: true };
         } catch (error) {
             return {
@@ -49,21 +50,27 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = useCallback(() => {
-        localStorage.removeItem('token');
-        setUser(null);
+    const logout = useCallback(async () => {
+        try {
+            await api.post('/logout');
+        } catch (err) {
+            console.error("Error for Logout", err);
+        } finally {
+            setUser(null);
+        }
     }, []);
 
     const value = {
         user,
         login,
         logout,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        loading
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

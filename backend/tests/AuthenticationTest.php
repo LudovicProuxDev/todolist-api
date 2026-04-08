@@ -41,6 +41,8 @@ class AuthenticationTest extends ApiTestCase
             ],
         ]);
 
+        dd($response->toArray());
+
         $json = $response->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertArrayHasKey('token', $json);
