@@ -5,9 +5,11 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
-#[ApiResource()]
+#[ApiResource(normalizationContext: ['groups' => ['task:read']])]
+#[Groups(['task:read'])]
 class Task
 {
     #[ORM\Id]

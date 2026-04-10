@@ -12,7 +12,7 @@ class TaskTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    
+
     public function testGetCollection(): void
     {
         self::$alwaysBootKernel = false;
@@ -22,7 +22,7 @@ class TaskTest extends ApiTestCase
 
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
         $response = static::createClient()->request('GET', '/api/tasks');
-        
+
         // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
 
@@ -53,7 +53,9 @@ class TaskTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request('POST', '/api/tasks',
+        $response = static::createClient()->request(
+            'POST',
+            '/api/tasks',
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
@@ -70,9 +72,17 @@ class TaskTest extends ApiTestCase
             '@context' => '/api/contexts/Task',
             '@type' => 'Task',
             'description' => 'Do the bathroom',
-            'category' => '/api/categories/1',
+            'category' => [
+                '@id' => '/api/categories/1',
+                '@type' => 'Category',
+                'id' => 1,
+            ],
         ]);
         $this->assertMatchesRegularExpression('~^/api/tasks/\d+$~', $response->toArray()['@id']);
+        $this->assertArrayHasKey('label', $response->toArray()['category']);
+        $this->assertNotNull($response->toArray()['category']['label']);
+        $this->assertArrayHasKey('color', $response->toArray()['category']);
+        $this->assertNotNull($response->toArray()['category']['color']);
         $this->assertMatchesResourceItemJsonSchema(Task::class);
     }
 
@@ -80,7 +90,9 @@ class TaskTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request('POST', '/api/tasks',
+        $response = static::createClient()->request(
+            'POST',
+            '/api/tasks',
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
@@ -116,7 +128,7 @@ class TaskTest extends ApiTestCase
         $iri = $this->findIriBy(Task::class, ['description' => 'Make an apple pie']);
 
         // Use the PATCH method here to do a partial update
-        $client->request('PATCH', $iri, [
+        $response = $client->request('PATCH', $iri, [
             'json' => [
                 'createdAt' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
                 'category' => '/api/categories/20',
@@ -130,8 +142,16 @@ class TaskTest extends ApiTestCase
         $this->assertJsonContains([
             '@id' => $iri,
             'description' => 'Make an apple pie',
-            'category' => '/api/categories/20',
+            'category' => [
+                '@id' => '/api/categories/20',
+                '@type' => 'Category',
+                'id' => 20,
+            ],
         ]);
+        $this->assertArrayHasKey('label', $response->toArray()['category']);
+        $this->assertNotNull($response->toArray()['category']['label']);
+        $this->assertArrayHasKey('color', $response->toArray()['category']);
+        $this->assertNotNull($response->toArray()['category']['color']);
     }
 
     public function testDeleteTask(): void
