@@ -2,17 +2,16 @@
 
 namespace App\Tests;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Category;
 use App\Factory\CategoryFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class CategoryTest extends ApiTestCase
+class CategoryTest extends ApiTest
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    
+
     public function testGetCollection(): void
     {
         self::$alwaysBootKernel = false;
@@ -21,8 +20,9 @@ class CategoryTest extends ApiTestCase
         CategoryFactory::createMany(100);
 
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/api/categories');
-        
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request('GET', '/api/categories');
+
         // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
 
@@ -53,7 +53,10 @@ class CategoryTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request('POST', '/api/categories',
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request(
+            'POST',
+            '/api/categories',
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
@@ -79,7 +82,10 @@ class CategoryTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request('POST', '/api/categories',
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request(
+            'POST',
+            '/api/categories',
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
@@ -109,7 +115,7 @@ class CategoryTest extends ApiTestCase
         // Only create the category we need with a given label
         CategoryFactory::createOne(['label' => 'Cooking']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(Category::class, ['label' => 'Cooking']);
 
@@ -136,7 +142,7 @@ class CategoryTest extends ApiTestCase
         // Only create the category we need with a given label
         CategoryFactory::createOne(['label' => 'Shopping']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         $iri = $this->findIriBy(Category::class, ['label' => 'Shopping']);
 
         $client->request('DELETE', $iri);

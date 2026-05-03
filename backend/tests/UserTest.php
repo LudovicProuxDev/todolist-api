@@ -2,50 +2,15 @@
 
 namespace App\Tests;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class UserTest extends ApiTestCase
+class UserTest extends ApiTest
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-
-    private static array $json;
-
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        $container = static::getContainer();
-
-        $user = new User();
-        $user->setFirstname('Joe');
-        $user->setLastname('DOE');
-        $user->setUsername('joe.doe');
-        $user->setEmail('joe.doe@gmail.com');
-        $user->setRoles(['ROLE_USER']);
-        $user->setPassword(
-            $container->get('test.user_password_hasher')->hashPassword($user, '$3CR3T')
-        );
-
-        $manager = $container->get('doctrine')->getManager();
-        $manager->persist($user);
-        $manager->flush();
-
-        // retrieve a token
-        $response = static::createClient()->request('POST', '/api/auth', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'username' => 'joe.doe',
-                'password' => '$3CR3T',
-            ],
-        ]);
-
-        self::$json = json_decode($response->getContent(), true);
-    }
 
     public function testGetCollection(): void
     {
@@ -55,7 +20,8 @@ class UserTest extends ApiTestCase
         UserFactory::createMany(100);
 
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/api/users', ['auth_bearer' => self::$json['token']]);
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request('GET', '/api/users');
 
         // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
@@ -87,7 +53,8 @@ class UserTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request(
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request(
             'POST',
             '/api/users',
             [
@@ -101,7 +68,6 @@ class UserTest extends ApiTestCase
                     'firstname' => 'Ludovic',
                     'email' => 'ludovic.proux@outlook.fr',
                 ],
-                'auth_bearer' => self::$json['token'],
             ],
         );
 
@@ -125,7 +91,7 @@ class UserTest extends ApiTestCase
         // Only create the user we need with a given username
         UserFactory::createOne(['username' => 'john.doe']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(User::class, ['username' => 'john.doe']);
 
@@ -138,7 +104,6 @@ class UserTest extends ApiTestCase
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
-            'auth_bearer' => self::$json['token']
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -155,10 +120,10 @@ class UserTest extends ApiTestCase
         // Only create the user we need with a given username
         UserFactory::createOne(['username' => 'jane.doe']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         $iri = $this->findIriBy(User::class, ['username' => 'jane.doe']);
 
-        $client->request('DELETE', $iri, ['auth_bearer' => self::$json['token']]);
+        $client->request('DELETE', $iri);
 
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
@@ -171,12 +136,12 @@ class UserTest extends ApiTestCase
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request(
+        $client = $this->getAuthenticatedClient();
+        $response = $client->request(
             'GET',
             '/api/me',
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
-                'auth_bearer' => self::$json['token'],
             ],
         );
 
