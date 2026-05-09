@@ -18,7 +18,7 @@ artprima_prometheus_metrics:
         url: ~
 
         # Known values: in_memory, apcu, apcng, redis
-        type: apcu
+        type: redis
 
         # Available parameters used by redis
         host: 127.0.0.1
