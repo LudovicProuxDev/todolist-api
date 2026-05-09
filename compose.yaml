@@ -51,9 +51,40 @@ services:
     networks:
       - todolist-app
 
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: todolist-api-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - todolist-prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - "9090:9090"
+    networks:
+      - todolist-app
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: todolist-api-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=GFtodolistAdmin00+
+    volumes:
+      - todolist-grafana-data:/var/lib/grafana
+    networks:
+      - todolist-app
+
 networks:
   todolist-app:
     driver: bridge
 
 volumes:
   todolist-db-data:
+  todolist-prometheus-data:
+  todolist-grafana-data:

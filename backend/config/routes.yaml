@@ -13,3 +13,8 @@ controllers:
 auth:
     path: /api/auth
     methods: ["POST"]
+
+# expose /metrics/prometheus in your application
+app_metrics:
+    resource: "@ArtprimaPrometheusMetricsBundle/Resources/config/routing.yaml"
+    methods: [GET]

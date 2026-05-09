@@ -1,0 +1,44 @@
+artprima_prometheus_metrics:
+    namespace: app_backend
+
+    # Custom labels that can be added along the "action" label.
+    # You can set up for example:
+    # http_2xx_responses_total{action="GET-app_dummy_homepage",color="red",client_name="mobile-app"}
+    labels:
+        - name: "color"
+          type: "request_attribute"
+          value: "_color" # Create a subscriber and set up the `_color` attribute in the request. See example below.
+        - name: "client_name"
+          type: "request_header" # Create a subscriber and set up the `X-Client-Name` header in the request. See example below.
+          value: "X-Client-Name"
+
+    # metrics backend
+    storage:
+        # DSN of the storage. All parsed values will override explicitly set parameters. Ex: redis://127.0.0.1?timeout=0.1
+        url: ~
+
+        # Known values: in_memory, apcu, apcng, redis
+        type: apcu
+
+        # Available parameters used by redis
+        host: 127.0.0.1
+        port: 6379
+        timeout: 0.1
+        read_timeout: 10
+        persistent_connections: true
+        password: ~
+        database: 1 # Int value used by redis adapter
+        prefix: redis # String value used by redis and apcu
+
+        # A variable parameter to define additional options as key / value.
+        options:
+            foo: bar
+
+    # used to disable default application metrics
+    disable_default_metrics: false
+
+    # used to disable default metrics from promphp/prometheus_client_php
+    disable_default_promphp_metrics: false
+
+    # used to enable console metrics
+    enable_console_metrics: false
