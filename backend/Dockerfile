@@ -16,12 +16,21 @@ RUN apk add --no-cache \
 
 # 3. Installation et activation des extensions PHP
 # On installe intl (pour Symfony), pdo_pgsql (pour PostgreSQL), opcache (performance)
-RUN docker-php-ext-configure zip \
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && docker-php-ext-configure zip \
     && docker-php-ext-install -j$(nproc) \
-    intl \
-    pdo_pgsql \
-    zip \
-    opcache
+        intl \
+        pdo_pgsql \
+        zip \
+        opcache \
+    && apk del .build-deps \
+    && rm -rf /tmp/*
+
+# Configuration indispensable pour les métriques
+RUN echo "apc.enabled=1" >> /usr/local/etc/php/conf.d/docker-php-ext-apcu.ini \
+    && echo "apc.enable_cli=1" >> /usr/local/etc/php/conf.d/docker-php-ext-apcu.ini
 
 # 4. Récupération de Composer (via l'image officielle)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
