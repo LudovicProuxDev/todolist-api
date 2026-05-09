@@ -1,0 +1,3 @@
+artprima_prometheus_metrics:
+    disable_default_metrics: true
+    disable_default_promphp_metrics: true
