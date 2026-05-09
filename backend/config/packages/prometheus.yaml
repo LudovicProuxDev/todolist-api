@@ -18,17 +18,17 @@ artprima_prometheus_metrics:
         url: ~
 
         # Known values: in_memory, apcu, apcng, redis
-        type: redis
+        type: apcu
 
         # Available parameters used by redis
-        host: redis
+        host: 127.0.0.1
         port: 6379
         timeout: 0.1
         read_timeout: 10
         persistent_connections: true
         password: ~
         database: 1 # Int value used by redis adapter
-        prefix: redis # String value used by redis and apcu
+        prefix: apcu # String value used by redis and apcu
 
         # A variable parameter to define additional options as key / value.
         options:

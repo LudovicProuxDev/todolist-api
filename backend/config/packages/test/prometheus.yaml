@@ -1,3 +1,6 @@
 artprima_prometheus_metrics:
+    storage:
+        type: apcu
     disable_default_metrics: true
     disable_default_promphp_metrics: true
+    enable_console_metrics: false
