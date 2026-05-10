@@ -11,6 +11,10 @@ security:
                 class: App\Entity\User
                 property: username
 
+    role_hierarchy:
+        ROLE_METRICS: ROLE_USER
+        ROLE_ADMIN: ROLE_USER
+
     firewalls:
         dev:
             # Ensure dev tools and static assets are always allowed
@@ -39,7 +43,7 @@ security:
         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
         - { path: ^/contexts, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI contexts
         - { path: ^/api/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/metrics, roles: PUBLIC_ACCESS }
+        - { path: ^/metrics, roles: ROLE_METRICS }
         # - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

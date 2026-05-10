@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Post;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
 use App\State\UserPasswordHasher;
+use App\Validator as AcmeAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -46,6 +47,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank()]
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private ?string $username = null;
 
@@ -53,6 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[AcmeAssert\RoleCombination()]
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private array $roles = [];
 
@@ -68,14 +71,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
+    #[Assert\Email()]
     #[Groups(['user:read', 'user:create', 'user:update'])]
     private ?string $email = null;
 
