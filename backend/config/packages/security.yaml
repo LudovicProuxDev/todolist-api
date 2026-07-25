@@ -20,6 +20,12 @@ security:
             # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+        # Firewall for Prometheus
+        metrics:
+            pattern: ^/metrics/prometheus
+            stateless: true
+            provider: app_user_provider
+            http_basic: ~
         main:
             stateless: true
             provider: app_user_provider
@@ -43,7 +49,7 @@ security:
         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
         - { path: ^/contexts, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI contexts
         - { path: ^/api/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/metrics, roles: ROLE_METRICS }
+        - { path: ^/metrics/prometheus, roles: ROLE_METRICS }
         # - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
