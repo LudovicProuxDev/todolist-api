@@ -26,7 +26,8 @@ export const AuthProvider = ({ children }) => {
     if (newToken) {
       try {
         setUser(jwtDecode(newToken));
-      } catch (e) {
+      } catch (err) {
+        console.error("Invalid update user:", err);
         setUser(null);
       }
     } else {
