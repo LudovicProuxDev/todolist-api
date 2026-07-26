@@ -14,6 +14,9 @@ auth:
     path: /api/auth
     methods: ["POST"]
 
+api_refresh_token:
+    path: /api/token/refresh
+
 # expose /metrics/prometheus in your application
 app_metrics:
     resource: "@ArtprimaPrometheusMetricsBundle/Resources/config/routing.yaml"

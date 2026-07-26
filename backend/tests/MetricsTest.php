@@ -15,6 +15,6 @@ class MetricsTest extends ApiTest
         $client = $this->getAuthenticatedClient();
         $response = $client->request('GET', '/metrics/prometheus');
 
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(401);
     }
 }
