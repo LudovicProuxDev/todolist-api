@@ -17,18 +17,13 @@ variable "environment" {
 }
 
 variable "location" {
-  description = "Région Azure où déployer les ressources (doit rester dans l'UE pour la gouvernance des données)"
+  description = "Région Azure où déployer les ressources"
   type        = string
-  default     = "France Central"
+  default     = "East US"
 
-  validation {
-    condition = contains([
-      "francecentral", "francesouth", "westeurope", "northeurope",
-      "germanywestcentral", "germanynorth", "swedencentral",
-      "polandcentral", "italynorth", "spaincentral",
-    ], lower(replace(var.location, " ", "")))
-    error_message = "location doit être une région Azure de l'Union Européenne."
-  }
+  # NOTE gouvernance des données : pour un vrai déploiement prod, cette région
+  # devrait rester dans l'UE (France Central, West Europe...). Ici on teste sur
+  # un compte perso, donc région US (meilleure dispo / quota).
 }
 
 variable "postgres_admin_username" {

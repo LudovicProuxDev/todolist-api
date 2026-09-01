@@ -9,9 +9,9 @@ resource "azurerm_static_web_app" "frontend" {
   name                = "swa-${var.project_name}-${var.environment}"
   resource_group_name = azurerm_resource_group.main.name
 
-  # Les Static Web Apps ne sont pas disponibles dans toutes les régions,
-  # on force une région supportée.
-  location = "westeurope"
+  # Les Static Web Apps ne sont dispo que dans quelques régions
+  # (westus2, centralus, eastus2, westeurope, eastasia) : on en force une.
+  location = "eastus2"
 
   sku_tier = "Free"
   sku_size = "Free"

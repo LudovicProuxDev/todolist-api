@@ -4,7 +4,7 @@
 
 project_name = "todolist"
 environment  = "dev"
-location     = "France Central"
+location     = "East US"
 
 postgres_admin_username = "psqladmin"
 postgres_admin_password = "ChangeMoi123!" # mot de passe fort, sans @ : / ? # %

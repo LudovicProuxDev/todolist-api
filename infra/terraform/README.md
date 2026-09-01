@@ -2,8 +2,10 @@
 
 Infrastructure simple : Resource Group + PostgreSQL Flexible Server (DB) +
 App Service Linux (backend Symfony/PHP) + Static Web App (frontend React).
-Toutes les ressources sont en région UE (contrôlé par une `validation` sur
-la variable `location`).
+
+Région par défaut : `East US` (test sur compte perso). Pour un vrai
+déploiement prod soumis à la gouvernance des données, repasser `location`
+sur une région UE (France Central, West Europe...).
 
 ## Prérequis
 
