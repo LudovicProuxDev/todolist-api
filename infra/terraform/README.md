@@ -1,51 +1,65 @@
-# IaC Terraform — todolist sur Azure
+# IaC Terraform — todolist sur Azure (version test / compte perso)
 
-Infrastructure simple : Resource Group + PostgreSQL Flexible Server (DB) +
-App Service Linux (backend Symfony/PHP) + Static Web App (frontend React).
+Infra minimale pour **tester** sur un abonnement Azure bridé (compte
+gratuit) : un Resource Group + un groupe **Azure Container Instances**
+qui fait tourner le backend et un conteneur PostgreSQL, façon
+docker-compose managé.
 
-Région par défaut : `East US` (test sur compte perso). Pour un vrai
-déploiement prod soumis à la gouvernance des données, repasser `location`
-sur une région UE (France Central, West Europe...).
+Pourquoi pas App Service + PostgreSQL Flexible Server + Static Web App ?
+Parce que le compte perso a un quota de VM App Service à 0 et ne peut pas
+provisionner de Flexible Server. ACI contourne ces limites.
+
+## Contenu
+
+| Fichier | Rôle |
+|---|---|
+| `providers.tf` | Providers azurerm + random |
+| `variables.tf` | Variables (projet, région, image/port backend, creds PostgreSQL) |
+| `main.tf` | Resource Group + groupe ACI (conteneurs `db` + `backend`) |
+| `outputs.tf` | URL / FQDN / IP publics |
 
 ## Prérequis
 
-1. [Terraform](https://developer.hashicorp.com/terraform/install) installé (≥ 1.5)
-2. [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installé
-3. Être connecté : `az login`
-4. Copier `terraform.tfvars.example` en `terraform.tfvars` et adapter les valeurs
+- Terraform ≥ 1.5 et Azure CLI (déjà présents dans Azure Cloud Shell)
+- `az login` (automatique dans Cloud Shell)
 
 ## Utilisation
 
 ```bash
-# 1. Initialise Terraform (télécharge le provider azurerm)
+export TF_VAR_postgres_admin_password='UnMotDePasseFort2026'
+
 terraform init
+terraform plan     # ~3 ressources : RG, random_string, container_group
+terraform apply    # ~1-2 min
 
-# 2. Affiche ce que Terraform va créer/modifier, sans rien appliquer
-terraform plan
+terraform output backend_url
+curl -I "$(terraform output -raw backend_url)"   # 200 = la page nginx placeholder répond
+```
 
-# 3. Applique réellement les changements sur Azure
-terraform apply
+Pour tout supprimer (éviter les coûts) :
 
-# 4. Pour tout détruire en fin de projet (évite les coûts inutiles)
+```bash
 terraform destroy
 ```
 
-## Fichiers
+## Limites de cette version (assumées)
 
-| Fichier | Rôle |
-|---|---|
-| `providers.tf` | Déclare le provider Azure et le state |
-| `variables.tf` | Toutes les variables du projet |
-| `main.tf` | Resource Group (conteneur de toutes les ressources) |
-| `database.tf` | Serveur PostgreSQL + base + règle firewall |
-| `backend.tf` | App Service Linux pour le backend Symfony/PHP |
-| `frontend.tf` | Static Web App pour le frontend React |
-| `outputs.tf` | URLs et infos affichées après `apply` |
-| `terraform.tfvars.example` | Exemple de valeurs à copier |
+- **PostgreSQL éphémère** : pas de volume persistant, les données sont
+  perdues à chaque recréation du groupe. OK pour tester, pas pour de la
+  vraie donnée.
+- **HTTP uniquement** : l'IP publique ACI ne fait pas de HTTPS. Pour du
+  TLS il faudrait ajouter Front Door / Application Gateway / un sidecar
+  Caddy plus tard.
+- **Frontend mis de côté** : la Static Web App échouait (limite compte
+  gratuit) et le routing `/api` relatif du frontend n'est pas résolu. À
+  reprendre une fois le backend + DB validés.
+- **Backend = placeholder nginx** par défaut. Pour lancer le vrai backend
+  Symfony : pousser l'image dans un registre puis
+  `backend_docker_image = "<registre>/todolist-backend:latest"` +
+  `backend_port = 8000` dans `terraform.tfvars`.
 
-## Prochaine étape possible : intégration CI/CD
+## Pour une vraie prod
 
-Une fois ce socle validé, on peut brancher un job GitHub Actions qui lance
-`terraform plan` sur chaque pull request (validation) et `terraform apply`
-sur merge vers `main` (déploiement), en utilisant un Service Principal Azure
-(`az ad sp create-for-rbac`) stocké dans les secrets GitHub.
+Repasser `location` sur une région UE (gouvernance des données) et
+remplacer ACI par App Service / Container Apps + PostgreSQL Flexible
+Server + Front Door (nécessite un abonnement non bridé).
