@@ -28,9 +28,9 @@ variable "location" {
 # --- Base de données (conteneur PostgreSQL, éphémère) ---
 
 variable "postgres_image" {
-  description = "Image Docker PostgreSQL (identique au compose.yaml)"
+  description = "Image PostgreSQL (le compose.yaml local utilise postgres:18 ; 16 suffit pour tester)."
   type        = string
-  default     = "postgres:18-alpine"
+  default     = "postgres:16-alpine"
 }
 
 variable "postgres_admin_username" {
@@ -48,13 +48,24 @@ variable "postgres_admin_password" {
 # --- Backend ---
 
 variable "backend_docker_image" {
-  description = "Image Docker du backend. Placeholder public par défaut ; mettre l'image réelle (ACR) pour un vrai déploiement."
+  description = "Image Docker du backend. Défaut = nginx (placeholder). Mettre l'image réelle (ACR) pour un vrai déploiement."
   type        = string
-  default     = "nginxdemos/hello:latest"
+  default     = "nginx:alpine"
 }
 
 variable "backend_port" {
   description = "Port écouté par le conteneur backend. 80 = placeholder nginx ; 8000 = backend Symfony réel (php -S ... :8000)."
   type        = number
   default     = 80
+}
+
+variable "image_registry_credential" {
+  description = "Optionnel : credentials d'un registre privé (ex: ACR) hébergeant l'image backend réelle. Laisser null avec les images placeholder publiques."
+  type = object({
+    server   = string
+    username = string
+    password = string
+  })
+  default   = null
+  sensitive = true
 }

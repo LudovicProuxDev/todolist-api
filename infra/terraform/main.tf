@@ -71,16 +71,20 @@ resource "azurerm_container_group" "main" {
     }
 
     secure_environment_variables = {
-      DATABASE_URL = "postgresql://${var.postgres_admin_username}:${var.postgres_admin_password}@localhost:5432/${var.project_name}_db?serverVersion=18&charset=utf8"
+      DATABASE_URL = "postgresql://${var.postgres_admin_username}:${var.postgres_admin_password}@localhost:5432/${var.project_name}_db?serverVersion=16&charset=utf8"
     }
   }
 
-  # Pour une image backend privée (ACR), décommenter :
-  # image_registry_credential {
-  #   server   = "monregistry.azurecr.io"
-  #   username = "..."
-  #   password = "..."
-  # }
+  # Credentials de registre privé (ex: ACR) — actif seulement si la variable
+  # image_registry_credential est renseignée.
+  dynamic "image_registry_credential" {
+    for_each = var.image_registry_credential == null ? [] : [var.image_registry_credential]
+    content {
+      server   = image_registry_credential.value.server
+      username = image_registry_credential.value.username
+      password = image_registry_credential.value.password
+    }
+  }
 
   tags = {
     project     = var.project_name
