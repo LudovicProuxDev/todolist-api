@@ -1,0 +1,12 @@
+# Copier ce fichier en "terraform.tfvars" (sans .example) et adapter
+# les valeurs. Ce fichier terraform.tfvars ne doit JAMAIS être commité
+# dans Git (le mot de passe y sera en clair).
+
+project_name = "todolist"
+environment  = "dev"
+location     = "France Central"
+
+postgres_admin_username = "psqladmin"
+postgres_admin_password = "ChangeMoi123!" # mot de passe fort, sans @ : / ? # %
+
+backend_docker_image = "monregistry.azurecr.io/todolist-backend:latest"
