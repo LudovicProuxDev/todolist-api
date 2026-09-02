@@ -80,6 +80,34 @@ services:
     networks:
       - todolist-app
 
+  # SonarQube
+  sonarqube:
+    image: sonarqube:community
+    container_name: todolist-api-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+      - SONAR_JDBC_URL=jdbc:postgresql://sonar_db:5432/sonar
+    depends_on:
+      - sonar_db
+    networks:
+      - todolist-app
+
+  # SonarQube Database
+  sonar_db:
+    image: postgres:15-alpine
+    container_name: todolist-api-sonar-db
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - todolist-sonar-db-data:/var/lib/postgresql/data
+    networks:
+      - todolist-app
+
 networks:
   todolist-app:
     driver: bridge
@@ -88,3 +116,4 @@ volumes:
   todolist-db-data:
   todolist-prometheus-data:
   todolist-grafana-data:
+  todolist-sonar-db-data:
