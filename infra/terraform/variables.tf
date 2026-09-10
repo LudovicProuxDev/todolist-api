@@ -73,6 +73,38 @@ variable "backend_port" {
   default     = 80
 }
 
+# --- Frontend (React / Vite) ---
+
+variable "enable_frontend" {
+  description = "Ajouter le conteneur frontend au groupe ACI. false = backend + DB seulement."
+  type        = bool
+  default     = true
+}
+
+variable "frontend_docker_image" {
+  description = "Image Docker du frontend (vite dev server, port 3000). À pousser dans l'ACR. Défaut = nginx placeholder."
+  type        = string
+  default     = "nginx:alpine"
+}
+
+variable "frontend_port" {
+  description = "Port écouté par le conteneur frontend (3000 = vite dev server)."
+  type        = number
+  default     = 3000
+}
+
+variable "frontend_api_proxy_target" {
+  description = "Cible du proxy /api du frontend (env VITE_API_PROXY_TARGET). null => http://localhost:<backend_port> : dans un groupe ACI les conteneurs partagent localhost."
+  type        = string
+  default     = null
+}
+
+variable "frontend_allowed_hosts" {
+  description = "Valeur de VITE_ALLOWED_HOSTS pour le vite dev server : le(s) FQDN public(s) ACI séparés par des virgules, ou 'all' pour tout autoriser."
+  type        = string
+  default     = "all"
+}
+
 variable "image_registry_credential" {
   description = "Optionnel : credentials d'un registre privé (ex: ACR) hébergeant l'image backend réelle. Laisser null avec les images placeholder publiques."
   type = object({

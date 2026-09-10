@@ -1,9 +1,9 @@
 # IaC Terraform — todolist sur Azure (version test / compte perso)
 
 Infra minimale pour **tester** sur un abonnement Azure bridé (compte
-gratuit) : un Resource Group + un groupe **Azure Container Instances**
-qui fait tourner le backend et un conteneur PostgreSQL, façon
-docker-compose managé.
+gratuit) : un Resource Group + un Azure Container Registry + un groupe
+**Azure Container Instances** qui fait tourner le frontend, le backend et
+un conteneur PostgreSQL, façon docker-compose managé.
 
 Pourquoi pas App Service + PostgreSQL Flexible Server + Static Web App ?
 Parce que le compte perso a un quota de VM App Service à 0 et ne peut pas
@@ -14,9 +14,9 @@ provisionner de Flexible Server. ACI contourne ces limites.
 | Fichier | Rôle |
 |---|---|
 | `providers.tf` | Providers azurerm + random |
-| `variables.tf` | Variables (projet, région, image/port backend, creds PostgreSQL, ACR) |
-| `main.tf` | Resource Group + Azure Container Registry + groupe ACI (conteneurs `db` + `backend`) |
-| `outputs.tf` | URL / FQDN / IP publics + login server & creds admin de l'ACR |
+| `variables.tf` | Variables (projet, région, images/ports frontend + backend, creds PostgreSQL, ACR) |
+| `main.tf` | Resource Group + Azure Container Registry + groupe ACI (conteneurs `db` + `backend` + `frontend`) |
+| `outputs.tf` | URLs frontend/backend / FQDN / IP publics + login server & creds admin de l'ACR |
 
 ## Prérequis
 
@@ -33,8 +33,18 @@ terraform plan     # RG, random_string, container_registry, container_group
 terraform apply    # ~2-3 min (ACR Basic ~30 s + ACI ~1-2 min)
 
 terraform output backend_url
-curl -I "$(terraform output -raw backend_url)"   # 200 = la page nginx placeholder répond
+terraform output frontend_url
+curl -I "$(terraform output -raw backend_url)"    # 200 = nginx placeholder (backend_port = 80)
+
+# ATTENTION : frontend_url ne répond qu'avec la VRAIE image Vite (écoute sur :3000).
+# Le placeholder nginx écoute sur :80, donc rien ne répond sur :3000 tant que
+# frontend_docker_image n'est pas l'image réelle.
 ```
+
+Les deux URLs partagent le même FQDN/IP publique ACI, sur des ports
+différents (`backend_port` et `frontend_port`). Le navigateur n'a besoin
+que de `frontend_url` : les appels `/api` sont relayés côté serveur vers le
+backend (`localhost:<backend_port>`) par le proxy du dev server.
 
 ### Test Azure Container Registry (< 10 min)
 
@@ -80,13 +90,23 @@ terraform destroy
 - **HTTP uniquement** : l'IP publique ACI ne fait pas de HTTPS. Pour du
   TLS il faudrait ajouter Front Door / Application Gateway / un sidecar
   Caddy plus tard.
-- **Frontend mis de côté** : la Static Web App échouait (limite compte
-  gratuit) et le routing `/api` relatif du frontend n'est pas résolu. À
-  reprendre une fois le backend + DB validés.
-- **Backend = placeholder nginx** par défaut. Pour lancer le vrai backend
-  Symfony : pousser l'image dans un registre puis
-  `backend_docker_image = "<registre>/todolist-backend:latest"` +
-  `backend_port = 8000` dans `terraform.tfvars`.
+- **Frontend = conteneur dans le même groupe ACI** (plus de Static Web App,
+  qui échouait sur le compte gratuit). Le routing `/api` relatif est résolu
+  par le proxy du vite dev server, reconfiguré via l'env `VITE_API_PROXY_TARGET`
+  vers `http://localhost:<backend_port>` (les conteneurs d'un groupe ACI
+  partagent `localhost`). `VITE_ALLOWED_HOSTS` (défaut `all`) autorise le
+  Host public sur le dev server. Mettre `enable_frontend = false` pour ne
+  déployer que backend + DB.
+- **Images = placeholder nginx** par défaut (frontend et backend). Le
+  placeholder nginx écoute sur `:80` : il sert de smoke-test pour le backend
+  (`backend_port = 80` par défaut) mais **pas pour le frontend** (exposé sur
+  `:3000`, donc pas de réponse tant que l'image réelle n'est pas fournie).
+  Pour lancer les vraies images : les pousser dans l'ACR puis renseigner
+  `backend_docker_image` / `backend_port = 8000` et
+  `frontend_docker_image` / `frontend_port = 3000` dans `terraform.tfvars`.
+  Le vite dev server tourne en mode `npm run dev` (comme le `compose.yaml`),
+  pas en build statique — il doit écouter sur `0.0.0.0:3000` (déjà le cas
+  dans `vite.config.js`).
 
 ## Pour une vraie prod
 

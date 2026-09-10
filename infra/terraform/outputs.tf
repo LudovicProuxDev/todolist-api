@@ -8,6 +8,11 @@ output "backend_url" {
   value       = "http://${azurerm_container_group.main.fqdn}:${var.backend_port}"
 }
 
+output "frontend_url" {
+  description = "URL publique du frontend (null si enable_frontend = false)"
+  value       = var.enable_frontend ? "http://${azurerm_container_group.main.fqdn}:${var.frontend_port}" : null
+}
+
 output "container_group_fqdn" {
   description = "Nom DNS du groupe de conteneurs"
   value       = azurerm_container_group.main.fqdn

@@ -47,6 +47,10 @@ resource "azurerm_container_registry" "main" {
 }
 
 locals {
+  # Cible du proxy /api du frontend : par défaut le backend du même groupe ACI,
+  # joignable sur localhost (conteneurs d'un groupe = même pile réseau).
+  frontend_api_proxy_target = coalesce(var.frontend_api_proxy_target, "http://localhost:${var.backend_port}")
+
   # Faut-il passer un bloc image_registry_credential à l'ACI ? Bool NON sensible
   # (nonsensitive) : c'est lui qui décide 0 ou 1 bloc, et for_each refuse une
   # valeur sensible pour la longueur de la collection.
@@ -116,6 +120,29 @@ resource "azurerm_container_group" "main" {
 
     secure_environment_variables = {
       DATABASE_URL = "postgresql://${var.postgres_admin_username}:${var.postgres_admin_password}@localhost:5432/${var.project_name}_db?serverVersion=16&charset=utf8"
+    }
+  }
+
+  # --- Frontend (optionnel) ---
+  # Vite dev server. Il joint le backend via le proxy /api -> localhost:<backend_port>
+  # (même groupe ACI). VITE_ALLOWED_HOSTS autorise le Host public sur le dev server.
+  dynamic "container" {
+    for_each = var.enable_frontend ? [1] : []
+    content {
+      name   = "frontend"
+      image  = var.frontend_docker_image
+      cpu    = 0.5
+      memory = 1.0
+
+      ports {
+        port     = var.frontend_port
+        protocol = "TCP"
+      }
+
+      environment_variables = {
+        VITE_API_PROXY_TARGET = local.frontend_api_proxy_target
+        VITE_ALLOWED_HOSTS    = var.frontend_allowed_hosts
+      }
     }
   }
 
