@@ -45,6 +45,20 @@ variable "postgres_admin_password" {
   sensitive   = true
 }
 
+# --- Azure Container Registry ---
+
+variable "enable_container_registry" {
+  description = "Créer un Azure Container Registry pour héberger l'image backend réelle. Laisser true pour le test ACR ; false si on reste sur les images placeholder publiques."
+  type        = bool
+  default     = true
+}
+
+variable "acr_sku" {
+  description = "SKU de l'ACR. Basic suffit pour tester (le moins cher)."
+  type        = string
+  default     = "Basic"
+}
+
 # --- Backend ---
 
 variable "backend_docker_image" {

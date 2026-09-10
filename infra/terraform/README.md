@@ -14,9 +14,9 @@ provisionner de Flexible Server. ACI contourne ces limites.
 | Fichier | Rôle |
 |---|---|
 | `providers.tf` | Providers azurerm + random |
-| `variables.tf` | Variables (projet, région, image/port backend, creds PostgreSQL) |
-| `main.tf` | Resource Group + groupe ACI (conteneurs `db` + `backend`) |
-| `outputs.tf` | URL / FQDN / IP publics |
+| `variables.tf` | Variables (projet, région, image/port backend, creds PostgreSQL, ACR) |
+| `main.tf` | Resource Group + Azure Container Registry + groupe ACI (conteneurs `db` + `backend`) |
+| `outputs.tf` | URL / FQDN / IP publics + login server & creds admin de l'ACR |
 
 ## Prérequis
 
@@ -29,12 +29,42 @@ provisionner de Flexible Server. ACI contourne ces limites.
 export TF_VAR_postgres_admin_password='UnMotDePasseFort2026'
 
 terraform init
-terraform plan     # ~3 ressources : RG, random_string, container_group
-terraform apply    # ~1-2 min
+terraform plan     # RG, random_string, container_registry, container_group
+terraform apply    # ~2-3 min (ACR Basic ~30 s + ACI ~1-2 min)
 
 terraform output backend_url
 curl -I "$(terraform output -raw backend_url)"   # 200 = la page nginx placeholder répond
 ```
+
+### Test Azure Container Registry (< 10 min)
+
+`enable_container_registry = true` (défaut) crée un ACR **Basic** avec
+l'utilisateur admin activé, et branche automatiquement ses credentials
+sur le groupe ACI (`image_registry_credential`). Cycle complet de test :
+
+```bash
+export TF_VAR_postgres_admin_password='UnMotDePasseFort2026'
+
+terraform init
+terraform apply -target=azurerm_container_registry.main   # ~1 min
+
+ACR=$(terraform output -raw container_registry_login_server)
+az acr login --name "${ACR%%.*}"
+
+# Pousser une image de test (ou l'image backend réelle)
+docker pull nginx:alpine
+docker tag  nginx:alpine "$ACR/todolist-backend:test"
+docker push "$ACR/todolist-backend:test"                  # ~1 min
+
+terraform apply \
+  -var="backend_docker_image=$ACR/todolist-backend:test"  # ~2 min
+
+curl -I "$(terraform output -raw backend_url)"
+terraform destroy                                         # ~2 min
+```
+
+Pour désactiver l'ACR et rester sur les images publiques :
+`enable_container_registry = false`.
 
 Pour tout supprimer (éviter les coûts) :
 

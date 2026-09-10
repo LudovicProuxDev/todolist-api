@@ -7,6 +7,11 @@ location     = "East US"
 postgres_admin_username = "psqladmin"
 postgres_admin_password = "ChangeMoi123" # fort, sans @ : / ? # %
 
-# Placeholder par défaut. Pour le vrai backend Symfony :
-# backend_docker_image = "monregistry.azurecr.io/todolist-backend:latest"
+# Azure Container Registry (créé par défaut, SKU Basic).
+# enable_container_registry = true
+# acr_sku                   = "Basic"
+
+# Placeholder par défaut. Pour le vrai backend Symfony, pousser l'image
+# dans l'ACR créé par Terraform puis renseigner son login server :
+# backend_docker_image = "acrtodolistdevxxxxx.azurecr.io/todolist-backend:latest"
 # backend_port         = 8000
