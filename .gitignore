@@ -1,0 +1,3 @@
+###> SonarQube ###
+/.env.sonar.local
+###< SonarQube ###
