@@ -1,0 +1,7 @@
+# Gitleaks configuration: default rules, plus the allowlists below
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Directory removed from the project, its history only contains a placeholder password"
+paths = ['''^infra/''']

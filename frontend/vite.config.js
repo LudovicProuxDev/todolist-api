@@ -14,16 +14,15 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    // En ACI, le dev server doit accepter le Host public :
-    //   VITE_ALLOWED_HOSTS="mon-fqdn.azurecontainer.io"  (ou "all")
-    // Non défini => défaut Vite (localhost), ce qui suffit en local/compose.
+    // Hosts accepted by the dev server: VITE_ALLOWED_HOSTS="host1,host2" (or "all").
+    // Not set => Vite default (localhost), enough for local and compose.
     allowedHosts:
       process.env.VITE_ALLOWED_HOSTS === 'all'
         ? true
         : process.env.VITE_ALLOWED_HOSTS?.split(','),
     proxy: {
       '/api': {
-        // compose: http://backend:8000 ; ACI: http://localhost:8000
+        // compose: http://backend:8000
         target: process.env.VITE_API_PROXY_TARGET || 'http://backend:8000',
         changeOrigin: true,
       }
