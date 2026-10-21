@@ -97,7 +97,7 @@ services:
 
   # SonarQube Database
   sonar_db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: todolist-api-sonar-db
     environment:
       - POSTGRES_USER=sonar

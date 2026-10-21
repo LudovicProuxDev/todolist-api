@@ -1,4 +1,4 @@
-name: Backend Symfony
+name: CI
 
 on:
   push:
@@ -10,7 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  # Backend
+  backend-build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,20 +34,20 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-  test:
-    needs: build
+  backend-test:
+    needs: backend-build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     env:
-      DATABASE_URL: postgres://john:doe@localhost:5432/todolist?serverVersion=18&charset=utf8
+      DATABASE_URL: postgres://john:doe@localhost:5432/todolist?serverVersion=16&charset=utf8
       JWT_SECRET_KEY: "${{ secrets.JWT_SECRET_KEY }}"
       JWT_PUBLIC_KEY: "${{ secrets.JWT_PUBLIC_KEY }}"
       JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
     services:
       postgres:
-        image: postgres:18
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: todolist
           POSTGRES_USER: john
@@ -81,3 +82,81 @@ jobs:
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
       - name: Execute tests via PHPUnit
         run: vendor/bin/phpunit
+
+  # Frontend
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        id: node-cache
+        uses: actions/cache@v3
+        with:
+          path: ./frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run build
+        run: npm run build
+
+  frontend-test:
+    needs: frontend-build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        id: node-cache
+        uses: actions/cache@v3
+        with:
+          path: ./frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx vitest -u --run
+
+  # Docker images
+  docker:
+    needs: [backend-build, backend-test, frontend-build, frontend-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t todolist-api-backend ./backend
+
+      - name: Build frontend image
+        run: docker build -t todolist-api-frontend ./frontend
