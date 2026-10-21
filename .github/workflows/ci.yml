@@ -160,3 +160,51 @@ jobs:
 
       - name: Build frontend image
         run: docker build -t todolist-api-frontend ./frontend
+
+      - name: Validate compose file
+        run: docker compose config -q
+
+      - name: Start database
+        run: |
+          docker compose up -d db
+          for i in $(seq 1 30); do
+            docker compose exec -T db pg_isready -U root -d todolist && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Start backend
+        run: docker compose up -d --build backend
+
+      - name: Check backend is responding
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:8000/api && exit 0
+            sleep 5
+          done
+          exit 1
+
+      - name: Install frontend dependencies
+        run: docker compose run --rm --no-deps frontend npm ci
+
+      - name: Start frontend
+        run: docker compose up -d --no-deps frontend
+
+      - name: Check frontend is responding
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:3000/ && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Check frontend can reach backend
+        run: curl -sf -o /dev/null http://localhost:3000/api
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs db backend frontend
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down -v
