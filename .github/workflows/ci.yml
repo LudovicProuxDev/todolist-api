@@ -87,7 +87,13 @@ jobs:
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
       - name: Execute tests via PHPUnit
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --log-junit reports/phpunit.xml
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-test-report
+          path: backend/reports/
 
   # Frontend
   frontend-build:
@@ -126,6 +132,12 @@ jobs:
       - name: Run build
         run: npm run build
 
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
   frontend-test:
     needs: frontend-build
     runs-on: ubuntu-latest
@@ -155,12 +167,26 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npx vitest -u --run
+        run: npx vitest -u --run --reporter=default --reporter=junit --outputFile.junit=reports/vitest.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-test-report
+          path: frontend/reports/
 
   # Docker images
   docker:
     needs: [backend-build, backend-test, frontend-build, frontend-test]
     runs-on: ubuntu-latest
+    env:
+      TRIVY: >-
+        docker run --rm
+        -v /var/run/docker.sock:/var/run/docker.sock
+        -v trivy-cache:/root/.cache
+        -v ${{ github.workspace }}/reports:/reports
+        aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
     steps:
       - uses: actions/checkout@v4
 
@@ -169,6 +195,25 @@ jobs:
 
       - name: Build frontend image
         run: docker build -t todolist-api-frontend ./frontend
+
+      - name: Generate Trivy reports
+        run: |
+          mkdir -p reports
+          $TRIVY image --quiet --scanners vuln --output /reports/trivy-backend.txt todolist-api-backend
+          $TRIVY image --quiet --scanners vuln --output /reports/trivy-frontend.txt todolist-api-frontend
+
+      - name: Upload Trivy reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-reports
+          path: reports/
+
+      - name: Scan backend image via Trivy
+        run: $TRIVY image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 todolist-api-backend
+
+      - name: Scan frontend image via Trivy
+        run: $TRIVY image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 todolist-api-frontend
 
       - name: Validate compose file
         run: docker compose config -q
