@@ -14,8 +14,6 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./backend:/var/www/html
-    environment:
-      DATABASE_URL: "postgresql://root:secret@db:5432/todolist?serverVersion=16&charset=utf8"
     depends_on:
       - db
     networks:
@@ -28,10 +26,13 @@ services:
     restart: always
     environment:
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: todolist
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}
+      TEST_DB_PASSWORD: ${TEST_DB_PASSWORD:?Set TEST_DB_PASSWORD in .env}
     volumes:
       - todolist-db-data:/var/lib/postgresql/data
+      - ./database/init-users.sh:/docker-entrypoint-initdb.d/init-users.sh:ro
     networks:
       - todolist-app
     ports:
@@ -58,6 +59,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/metrics_password.txt:/etc/prometheus/metrics_password.txt:ro
       - todolist-prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -74,7 +76,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=GFtodolistAdmin00+
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
     volumes:
       - todolist-grafana-data:/var/lib/grafana
     networks:
@@ -88,7 +90,7 @@ services:
       - "9000:9000"
     environment:
       - SONAR_JDBC_USERNAME=sonar
-      - SONAR_JDBC_PASSWORD=sonar
+      - SONAR_JDBC_PASSWORD=${SONAR_DB_PASSWORD:?Set SONAR_DB_PASSWORD in .env}
       - SONAR_JDBC_URL=jdbc:postgresql://sonar_db:5432/sonar
     depends_on:
       - sonar_db
@@ -101,7 +103,7 @@ services:
     container_name: todolist-api-sonar-db
     environment:
       - POSTGRES_USER=sonar
-      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_PASSWORD=${SONAR_DB_PASSWORD:?Set SONAR_DB_PASSWORD in .env}
       - POSTGRES_DB=sonar
     volumes:
       - todolist-sonar-db-data:/var/lib/postgresql/data

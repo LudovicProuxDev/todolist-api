@@ -48,6 +48,19 @@ All services are defined in [`compose.yaml`](compose.yaml):
 
 Prerequisite: Docker with Docker Compose.
 
+No secret is versioned. Create the local files first, from the templates:
+
+```bash
+# Compose secrets (database accounts, Grafana, SonarQube database): fill in the values
+cp .env.example .env
+
+# Password of the Prometheus metrics user (see monitoring/README.md)
+printf '%s' 'YourMetricsPassword' > monitoring/prometheus/metrics_password.txt
+```
+
+Then generate the backend secrets (`backend/.env.local`, `backend/.env.test.local`): see
+[Local secrets](backend/README.md#local-secrets). Then start the stack:
+
 ```bash
 docker compose up -d --build
 ```
@@ -82,13 +95,14 @@ The GitHub Actions pipeline ([`.github/workflows/ci.yml`](.github/workflows/ci.y
 request to `master`:
 
 ```
-backend-build  ──► backend-test  ──┐
-                                   ├──► docker
-frontend-build ──► frontend-test ──┘
+               ┌──► backend-build  ──► backend-test  ──┐
+secrets-scan ──┤                                       ├──► docker
+               └──► frontend-build ──► frontend-test ──┘
 ```
 
 | Job | Steps |
 |---|---|
+| `secrets-scan` | Gitleaks on the whole git history (reviewed findings are listed in `.gitleaksignore`) |
 | `backend-build` | Composer install, `composer audit`, PHP-CS-Fixer, PHPStan |
 | `backend-test` | PHPUnit on PostgreSQL 16 |
 | `frontend-build` | `npm ci`, `npm audit`, ESLint, Vite build |

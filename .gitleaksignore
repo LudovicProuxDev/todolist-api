@@ -1,0 +1,12 @@
+# Gitleaks findings reviewed and accepted (format: commit:file:rule:line)
+
+# Default SonarQube credentials (admin:admin), replaced by sonar-setup.sh
+21f9740b99b5bf63f05d397cc5beb794244bcb9a:scripts/sonar-setup.sh:curl-auth-user:25
+21f9740b99b5bf63f05d397cc5beb794244bcb9a:scripts/sonar-setup.sh:curl-auth-user:26
+
+# Placeholder password in the removed Terraform documentation
+5da5c9ca6caf79de85759292ec25f5f777512dd6:infra/terraform/README.md:generic-api-key:46
+a3a64ac03080e475f9189c4b5b66a98c2d943f27:infra/terraform/README.md:generic-api-key:29
+
+# Former Symfony APP_SECRET, rotated
+cfb8134a14e90b490db3d122fe01814df0e6d08a:.env.dev:generic-api-key:3

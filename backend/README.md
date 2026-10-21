@@ -41,28 +41,62 @@ backend/
 
 ## Configuration
 
-The configuration is read from `.env` (versioned defaults), overridden by `.env.local` (not versioned)
-and by the real environment variables.
+The configuration is read from `.env` (versioned defaults, **without secrets**), overridden by `.env.local`
+(not versioned) and by the real environment variables. In the `test` environment, Symfony reads `.env.test` and
+`.env.test.local` instead of `.env.local`.
 
 | Variable | Description |
 |---|---|
-| `APP_ENV` / `APP_SECRET` | Symfony environment and secret |
-| `DATABASE_URL` | PostgreSQL connection. Set by `compose.yaml` for the `backend` container |
+| `APP_ENV` | Symfony environment |
+| `APP_SECRET` | Symfony secret, set in `.env.local` |
+| `DATABASE_URL` | PostgreSQL connection, set in `.env.local` (application) and `.env.test.local` (tests) |
 | `CORS_ALLOW_ORIGIN` | Allowed origins (regex), `localhost` and `127.0.0.1` on any port by default |
 | `JWT_SECRET_KEY` / `JWT_PUBLIC_KEY` | Paths of the JWT key pair (`config/jwt/*.pem`) |
-| `JWT_PASSPHRASE` | Passphrase of the private key |
+| `JWT_PASSPHRASE` | Passphrase of the private key, set in `.env.local` and `.env.test.local` |
 
-In the container, the database is reached through the `db` service:
-`postgresql://root:secret@db:5432/todolist?serverVersion=16&charset=utf8`.
+`compose.yaml` does not set `DATABASE_URL` for the `backend` container on purpose: a real environment variable
+would override the `.env.*` files and force the same account for the application and the tests.
+
+### Database accounts
+
+Each database has its own account, created by [`database/init-users.sh`](../database/init-users.sh) on the first
+start of the `db` service, with the passwords of the root `.env`:
+
+| Account | Database | Rights | Used by |
+|---|---|---|---|
+| `root` (`POSTGRES_PASSWORD`) | All | Superuser | Administration only |
+| `todolist_app` (`APP_DB_PASSWORD`) | `todolist` | Owner of this database only | The application |
+| `todolist_test` (`TEST_DB_PASSWORD`) | `todolist_test` | Owner of this database only, `CREATEDB` | The tests (Foundry recreates the database) |
+
+Each account can only connect to its own database.
+
+In the CI, `JWT_PASSPHRASE` and the key pair come from the repository secrets.
 
 ## Setup
 
 The `backend` service of `compose.yaml` runs `composer install`, creates the database, runs the migrations and
-starts the PHP built-in server on port 8000. Two steps remain, once.
+starts the PHP built-in server on port 8000.
+
+### Local secrets
+
+Before the first start, generate the backend secrets in the non-versioned files, from the repository root and once
+the root `.env` is filled:
+
+```bash
+source .env
+printf 'APP_SECRET=%s\nJWT_PASSPHRASE=%s\nDATABASE_URL="postgresql://todolist_app:%s@db:5432/todolist?serverVersion=16&charset=utf8"\n' \
+  "$(openssl rand -hex 16)" "$(openssl rand -hex 32)" "$APP_DB_PASSWORD" > backend/.env.local
+{
+  grep '^JWT_PASSPHRASE=' backend/.env.local
+  printf 'DATABASE_URL="postgresql://todolist_test:%s@db:5432/todolist?serverVersion=16&charset=utf8"\n' "$TEST_DB_PASSWORD"
+} > backend/.env.test.local
+```
+
+In the test environment, Doctrine adds the `_test` suffix to the database name.
 
 ### JWT keys
 
-The key pair is not versioned. Generate it with the `JWT_PASSPHRASE` of `.env`:
+The key pair is not versioned. Generate it with the `JWT_PASSPHRASE` of `.env.local`:
 
 ```bash
 docker compose exec backend php bin/console lexik:jwt:generate-keypair
@@ -190,10 +224,9 @@ with the `app_backend` namespace. See [`monitoring/README.md`](../monitoring/REA
 ### Tests
 
 Functional tests of the API (`tests/`), with [Foundry](https://github.com/zenstruck/foundry) to reset the database
-and create data. They run on the `todolist_test` database:
+and create data. They run on the `todolist_test` database, with the `todolist_test` account:
 
 ```bash
-docker compose exec backend php bin/console doctrine:database:create --env=test --if-not-exists   # once
 docker compose exec backend vendor/bin/phpunit
 ```
 

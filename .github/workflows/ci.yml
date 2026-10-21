@@ -10,8 +10,24 @@ permissions:
   contents: read
 
 jobs:
+  # Secrets
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan secrets via Gitleaks
+        run: >-
+          docker run --rm -v "$PWD:/repo"
+          zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git /repo --no-banner --redact --verbose
+          --gitleaks-ignore-path /repo/.gitleaksignore
+
   # Backend
   backend-build:
+    needs: secrets-scan
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -97,6 +113,7 @@ jobs:
 
   # Frontend
   frontend-build:
+    needs: secrets-scan
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -214,6 +231,14 @@ jobs:
 
       - name: Scan frontend image via Trivy
         run: $TRIVY image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 todolist-api-frontend
+
+      - name: Create compose secrets
+        run: |
+          for var in POSTGRES_PASSWORD APP_DB_PASSWORD TEST_DB_PASSWORD GRAFANA_ADMIN_PASSWORD SONAR_DB_PASSWORD; do
+            echo "$var=$(openssl rand -hex 16)" >> .env
+          done
+          source .env
+          echo "DATABASE_URL=\"postgresql://todolist_app:$APP_DB_PASSWORD@db:5432/todolist?serverVersion=16&charset=utf8\"" > backend/.env.local
 
       - name: Validate compose file
         run: docker compose config -q
