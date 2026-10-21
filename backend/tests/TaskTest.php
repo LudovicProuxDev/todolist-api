@@ -24,7 +24,7 @@ class TaskTest extends ApiTest
         $response = static::createClient()->request('GET', '/api/tasks');
 
         // Asserts that the returned content type is JSON-LD (the default)
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
 
         // Asserts that the returned JSON is a superset of this one
         $this->assertJsonContains([
@@ -67,7 +67,7 @@ class TaskTest extends ApiTest
         );
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/api/contexts/Task',
             '@type' => 'Task',
@@ -104,7 +104,7 @@ class TaskTest extends ApiTest
         );
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json');
 
         $this->assertJsonContains([
             '@context' => '/api/contexts/Error',

@@ -25,7 +25,7 @@ class CategoryTest extends ApiTest
         $response = $client->request('GET', '/api/categories');
 
         // Asserts that the returned content type is JSON-LD (the default)
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
 
         // Asserts that the returned JSON is a superset of this one
         $this->assertJsonContains([
@@ -68,7 +68,7 @@ class CategoryTest extends ApiTest
         );
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/api/contexts/Category',
             '@type' => 'Category',
@@ -97,7 +97,7 @@ class CategoryTest extends ApiTest
         );
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json');
 
         $this->assertJsonContains([
             '@context' => '/api/contexts/Error',
