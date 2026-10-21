@@ -57,6 +57,8 @@ The configuration is read from `.env` (versioned defaults, **without secrets**),
 `compose.yaml` does not set `DATABASE_URL` for the `backend` container on purpose: a real environment variable
 would override the `.env.*` files and force the same account for the application and the tests.
 
+In the CI, `JWT_PASSPHRASE` and the key pair come from the repository secrets.
+
 ### Database accounts
 
 Each database has its own account, created by [`database/init-users.sh`](../database/init-users.sh) on the first
@@ -69,8 +71,6 @@ start of the `db` service, with the passwords of the root `.env`:
 | `todolist_test` (`TEST_DB_PASSWORD`) | `todolist_test` | Owner of this database only, `CREATEDB` | The tests (Foundry recreates the database) |
 
 Each account can only connect to its own database.
-
-In the CI, `JWT_PASSPHRASE` and the key pair come from the repository secrets.
 
 ## Setup
 

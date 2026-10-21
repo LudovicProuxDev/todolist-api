@@ -38,6 +38,7 @@ All services are defined in [`compose.yaml`](compose.yaml):
 .
 ├── backend/                 # Symfony API
 ├── frontend/                # React app
+├── database/                # Postgres initialisation (one account per database)
 ├── monitoring/              # Prometheus configuration
 ├── scripts/                 # SonarQube scripts
 ├── .github/workflows/ci.yml # CI pipeline
@@ -67,6 +68,27 @@ docker compose up -d --build
 
 On startup, the backend installs its dependencies, creates the database and runs the migrations.
 Then finish the backend setup (JWT keys and first user): see [Backend setup](backend/README.md#setup).
+
+## Security
+
+No secret is versioned: every credential lives in a local file ignored by git, created from a template.
+
+| Local file | Template | Content |
+|---|---|---|
+| `.env` | [`.env.example`](.env.example) | Passwords of the database accounts, Grafana and the SonarQube database |
+| `backend/.env.local` | [Local secrets](backend/README.md#local-secrets) | `APP_SECRET`, `JWT_PASSPHRASE`, application `DATABASE_URL` |
+| `backend/.env.test.local` | [Local secrets](backend/README.md#local-secrets) | `JWT_PASSPHRASE`, test `DATABASE_URL` |
+| `backend/config/jwt/*.pem` | [JWT keys](backend/README.md#jwt-keys) | JWT key pair |
+| `monitoring/prometheus/metrics_password.txt` | [Monitoring](monitoring/README.md#prometheus) | Password of the Prometheus metrics user |
+| `.env.sonar.local` | [`.env.sonar.example`](.env.sonar.example) | SonarQube admin password and analysis token |
+
+- Each database has its own account, limited to its database (see [Database accounts](backend/README.md#database-accounts)).
+- The CI gets its secrets from the GitHub repository secrets, and generates random passwords for the Compose smoke tests.
+- The `secrets-scan` job runs [Gitleaks](https://github.com/gitleaks/gitleaks) on the whole git history and fails
+  the pipeline when a secret is committed. Findings reviewed as harmless (false positives, rotated values) are listed
+  with their reason in [`.gitleaksignore`](.gitleaksignore).
+
+If a secret is ever committed, rotate it: removing it from the files is not enough, since it stays in the history.
 
 ## SonarQube
 
