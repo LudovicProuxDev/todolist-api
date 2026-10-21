@@ -10,7 +10,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 class TaskTest extends ApiTest
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
 
     public function testGetCollection(): void
     {
@@ -59,7 +60,7 @@ class TaskTest extends ApiTest
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
                     'description' => 'Do the bathroom',
-                    'createdAt' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                    'createdAt' => (new \DateTime())->format('Y-m-d\TH:i:s.v\Z'),
                     'category' => '/api/categories/1',
                 ],
             ],
@@ -95,7 +96,7 @@ class TaskTest extends ApiTest
             [
                 'headers' => ['Content-Type' => 'application/ld+json'],
                 'json' => [
-                    'description' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                    'description' => (new \DateTime())->format('Y-m-d\TH:i:s.v\Z'),
                     'createdAt' => 'invalid task',
                     'category' => '/api/categories/200',
                 ],
@@ -129,12 +130,12 @@ class TaskTest extends ApiTest
         // Use the PATCH method here to do a partial update
         $response = $client->request('PATCH', $iri, [
             'json' => [
-                'createdAt' => (new \DateTime)->format('Y-m-d\TH:i:s.v\Z'),
+                'createdAt' => (new \DateTime())->format('Y-m-d\TH:i:s.v\Z'),
                 'category' => '/api/categories/20',
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
         ]);
 
         $this->assertResponseIsSuccessful();

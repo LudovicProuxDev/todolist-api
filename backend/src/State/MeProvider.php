@@ -8,9 +8,14 @@ use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
+/**
+ * @implements ProviderInterface<User>
+ */
 class MeProvider implements ProviderInterface
 {
-    public function __construct(private Security $security) {}
+    public function __construct(private Security $security)
+    {
+    }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?User
     {

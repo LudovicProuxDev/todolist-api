@@ -11,8 +11,6 @@ final class RoleCombinationValidator extends ConstraintValidator
 {
     public function validate(mixed $value, Constraint $constraint): void
     {
-        /** @var RoleCombination $constraint */
-
         if (!$constraint instanceof RoleCombination) {
             throw new UnexpectedTypeException($constraint, RoleCombination::class);
         }

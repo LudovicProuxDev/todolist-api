@@ -10,7 +10,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 class UserTest extends ApiTest
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
 
     public function testGetCollection(): void
     {
@@ -62,7 +63,7 @@ class UserTest extends ApiTest
                 'json' => [
                     'username' => 'ludovic',
                     'roles' => ['ROLE_USER', 'ROLE_ADMIN'],
-                    //'password' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
+                    // 'password' => self::getContainer()->get('test.user_password_hasher')->hashPassword(new User(), '$3CR3T'),
                     'plainPassword' => '$3CR3T',
                     'lastname' => 'PROUX',
                     'firstname' => 'Ludovic',

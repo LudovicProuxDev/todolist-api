@@ -16,13 +16,13 @@ abstract class ApiTest extends ApiTestCase
     protected function getTokenFromMotherApp(): string
     {
         // Cache from token
-        if (self::$cachedToken !== null) {
+        if (null !== self::$cachedToken) {
             return self::$cachedToken;
         }
 
-        $container   = static::getContainer();
-        $jwtManager  = $container->get(JWTTokenManagerInterface::class);
-        $em          = $container->get(EntityManagerInterface::class);
+        $container = static::getContainer();
+        $jwtManager = $container->get(JWTTokenManagerInterface::class);
+        $em = $container->get(EntityManagerInterface::class);
 
         // Get User from the database
         $user = $em->getRepository(User::class)->findOneBy([
@@ -50,7 +50,7 @@ abstract class ApiTest extends ApiTestCase
 
         return static::createClient([], [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
+                'Authorization' => 'Bearer '.$token,
             ],
         ]);
     }

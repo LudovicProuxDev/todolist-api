@@ -10,7 +10,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 class CategoryTest extends ApiTest
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
 
     public function testGetCollection(): void
     {
@@ -126,7 +127,7 @@ class CategoryTest extends ApiTest
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
         ]);
 
         $this->assertResponseIsSuccessful();
