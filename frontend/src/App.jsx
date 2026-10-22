@@ -18,7 +18,11 @@ export function App() {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="logout" element={<Logout />} />
-        <Route path="tasks/*" element={<TaskRoutes />} />
+        <Route path="tasks/*" element={
+          <ProtectedRoute>
+              <TaskRoutes />
+          </ProtectedRoute>
+        }/>
         <Route path="categories/*" element={
           <ProtectedRoute roles={[ROLES.ADMIN]}>
               <CategoryRoutes />

@@ -21,7 +21,7 @@ class TaskTest extends ApiTest
         TaskFactory::createMany(100);
 
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/api/tasks');
+        $response = $this->getAuthenticatedClient()->request('GET', '/api/tasks');
 
         // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json');
@@ -53,7 +53,7 @@ class TaskTest extends ApiTest
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request(
+        $response = $this->getAuthenticatedClient()->request(
             'POST',
             '/api/tasks',
             [
@@ -90,7 +90,7 @@ class TaskTest extends ApiTest
     {
         self::$alwaysBootKernel = false;
 
-        $response = static::createClient()->request(
+        $response = $this->getAuthenticatedClient()->request(
             'POST',
             '/api/tasks',
             [
@@ -123,7 +123,7 @@ class TaskTest extends ApiTest
         // Only create the task we need with a given label
         TaskFactory::createOne(['description' => 'Make an apple pie']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(Task::class, ['description' => 'Make an apple pie']);
 
@@ -159,7 +159,7 @@ class TaskTest extends ApiTest
         // Only create the task we need with a given label
         TaskFactory::createOne(['description' => 'Buy apples']);
 
-        $client = static::createClient();
+        $client = $this->getAuthenticatedClient();
         $iri = $this->findIriBy(Task::class, ['description' => 'Buy apples']);
 
         $client->request('DELETE', $iri);
@@ -169,5 +169,12 @@ class TaskTest extends ApiTest
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
             static::getContainer()->get('doctrine')->getRepository(Task::class)->findOneBy(['description' => 'Buy apples'])
         );
+    }
+
+    public function testAccessDeniedWithoutAuthentication(): void
+    {
+        static::createClient()->request('GET', '/api/tasks');
+
+        $this->assertResponseStatusCodeSame(401);
     }
 }

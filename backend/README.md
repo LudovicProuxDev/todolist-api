@@ -181,8 +181,8 @@ The JWT payload contains the `username` and `roles` of the user (used by the fro
 |---|---|---|
 | Users | `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/{id}` | Authenticated |
 | Current user | `GET /api/me` | Authenticated |
-| Tasks | `GET/POST /api/tasks`, `GET/PATCH/DELETE /api/tasks/{id}` | No restriction configured |
-| Categories | `GET/POST /api/categories`, `GET/PATCH/DELETE /api/categories/{id}` | No restriction configured |
+| Tasks | `GET/POST /api/tasks`, `GET/PATCH/DELETE /api/tasks/{id}` | Authenticated |
+| Categories | `GET/POST /api/categories`, `GET/PATCH/DELETE /api/categories/{id}` | Authenticated |
 
 ### Custom logic
 
@@ -204,8 +204,8 @@ Firewalls ([`config/packages/security.yaml`](config/packages/security.yaml)):
 | `main` | Everything else | JSON login on `/api/auth`, then JWT; refresh on `/api/token/refresh` |
 
 The `access_control` rules only require a role on `/metrics/prometheus` (no global rule is enabled).
-Access to the API is defined on the resources: the `User` resource requires `IS_AUTHENTICATED_FULLY`, while `Task`
-and `Category` have no security expression.
+Access to the API is defined on the resources: `User`, `Task` and `Category` require `IS_AUTHENTICATED_FULLY`
+(401 without a valid JWT). The documentation (`/api`) stays public.
 
 | Role | Usage |
 |---|---|

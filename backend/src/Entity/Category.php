@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ApiResource()]
+#[ApiResource(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
 #[Groups(['task:read'])]
 class Category
 {

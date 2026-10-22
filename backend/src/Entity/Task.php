@@ -8,7 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
-#[ApiResource(normalizationContext: ['groups' => ['task:read']])]
+#[ApiResource(
+    security: "is_granted('IS_AUTHENTICATED_FULLY')",
+    normalizationContext: ['groups' => ['task:read']],
+)]
 #[Groups(['task:read'])]
 class Task
 {

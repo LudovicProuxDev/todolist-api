@@ -154,4 +154,11 @@ class CategoryTest extends ApiTest
             static::getContainer()->get('doctrine')->getRepository(Category::class)->findOneBy(['label' => 'Shopping'])
         );
     }
+
+    public function testAccessDeniedWithoutAuthentication(): void
+    {
+        static::createClient()->request('GET', '/api/categories');
+
+        $this->assertResponseStatusCodeSame(401);
+    }
 }
